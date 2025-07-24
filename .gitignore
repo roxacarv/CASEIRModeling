@@ -1,4 +1,8 @@
+# Ignore VSCode files:
 *.code-workspace
-*.sublime-workspace
-*.sublime-project
 *.vscode
+
+# Ignore vim files:
+*~
+*.swp
+*.swo
