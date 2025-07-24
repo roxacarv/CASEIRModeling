@@ -17,7 +17,7 @@ void create_seir_model(Grid *grid) {
     for (int i = 0; i < infectious_cells; i++) {
         int x = rand() % grid->width;
         int y = rand() % grid->height;
-        grid->cells[y][x].value = INFECTED;
+        grid->cells[y][x].value = INFECTIOUS;
     }
 
     for (int i = 0; i < exposed_cells; i++) {
