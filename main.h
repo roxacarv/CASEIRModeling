@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "grid.h"
+#include "utils/grid.h"
 #include "seir.h"
 
 #endif // MAIN_H
