@@ -6,5 +6,6 @@
 #include <string.h>
 
 #include "grid.h"
+#include "seir.h"
 
 #endif // MAIN_H

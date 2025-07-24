@@ -1,5 +1,4 @@
 #include "main.h"
-#include "seir.h"
 
 int main(void) {
     Grid *grid = new_grid(10, 10);
