@@ -1,6 +1,7 @@
 #include "seir.h"
 
 void create_seir_model(Grid *grid) {
+    srand(time(NULL)); // Seed the random number generator
     if (!grid) {
         fprintf(stderr, "Grid is NULL\n");
         return;
