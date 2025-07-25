@@ -122,7 +122,4 @@ void calculate_infection_probability(const Grid *grid, int x, int y, double *pro
         *probability = 0.0;
     }
     printf("Infection probability for cell at (%d, %d): %.2f\n", x, y, *probability);
-
-    // Calculate infection probability based on the number of infectious neighbors
-    *probability = 1.0 - pow((1.0 - 0.1), infectious_neighbors); // Example transmission rate of 10%
 }
