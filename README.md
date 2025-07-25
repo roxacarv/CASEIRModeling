@@ -10,3 +10,6 @@ Modeling infectious diseases using the SEIR model struct and a celullar automata
 #### Tools
   - C: for simulation
   - Python: for visualization
+
+#### Reused Code
+  - [Conway's Game of Life in C++](https://github.com/roxacarv/roxacs_code_cellar/tree/master/Algorithms/Conway's%20Game%20of%20Life/C%2B%2B) that I've implemented a few years ago. Mainly used to guide a reimplementation of a Celullar Automata in C
