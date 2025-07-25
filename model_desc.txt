@@ -1,0 +1,44 @@
+> Transition rules
+
+Model: 
+    - SEIR (Susceptible - Exposed - Infectious - Recovered)
+
+Time:
+    - Uses discrete steps
+
+Legend:
+    MID - Microparasitic Infectious Diseases
+    S - Susceptible
+    E - Exposed
+    I - Infectious
+    R - Recovered
+    γ - Recover probability
+    D - Duration of infection
+    β - Transmission rate
+    σ - Latency period of infection
+    
+
+Population:
+    - Represented by a Cellular Automata
+
+Basic interaction for immunity development to MID in a given population:
+
+We assume that this is a well-mixed population.
+
+- If a cell is (S)
+    1. Count how many neighbors are (I)
+    2. Calculate the infection probability
+    3. Based on the result of the probability, decide if S state will change to either (E) or (I)
+- if a cell is (E)
+    1. Calculate if (E) is within the latency period σ
+    2. If σ is expired, (E) becomes (I) 
+- If a cell is (I)
+    1. Stay infected for D steps
+    2. Based on probability γ decide if I will change its state to (R)
+- If a cell is (R)
+    1. Stay recovered (immune)
+
+Additional simulations:
+    1. Change cells from places to simulate steps (e.g. moving through a neighborhood)
+    2. Vaccination can be done by assigning (R) randomly to cells from time to time that can also be defined randomly
+
