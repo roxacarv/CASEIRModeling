@@ -98,6 +98,30 @@ void calculate_infection_probability(const Grid *grid, int x, int y, double *pro
     }
 
     // Calculate the infection probability
+    if (is_susceptible(&grid->cells[y][x]))
+    {
+        // If the cell is susceptible, calculate the infection probability based on infectious neighbors
+        *probability = 1.0 - pow((1.0 - 0.1), infectious_neighbors);
+    }
+    
+    if (is_exposed(&grid->cells[y][x]))
+    {
+        // If the cell is exposed, it has a chance to become infectious
+        *probability = 0.5;
+    }
+
+    if (is_infectious(&grid->cells[y][x]))
+    {
+        // If the cell is infectious, it has a chance to recover
+        *probability = 0.2;
+    }
+    
+    if (is_recovered(&grid->cells[y][x]))
+    {
+        // If the cell is recovered, it remains in the recovered state
+        *probability = 0.0;
+    }
+    printf("Infection probability for cell at (%d, %d): %.2f\n", x, y, *probability);
 
     // Calculate infection probability based on the number of infectious neighbors
     *probability = 1.0 - pow((1.0 - 0.1), infectious_neighbors); // Example transmission rate of 10%
