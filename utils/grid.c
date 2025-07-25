@@ -65,3 +65,38 @@ void print_grid(const Grid *grid) {
         printf("\n");
     }
 }
+
+// Moves a cell through the grid, to simulate its movement as if it were a person
+void move_cell(Grid *grid, Cell *cell, int new_x, int new_y)
+{
+    if (!grid || !cell)
+    {
+        fprintf(stderr, "Grid or cell is NULL\n");
+        return;
+    }
+
+    if (new_x < 0 || new_x >= grid->width || new_y < 0 || new_y >= grid->height)
+    {
+        fprintf(stderr, "New position out of bounds\n");
+        return;
+    }
+
+    cell->x = new_x;
+    cell->y = new_y;
+    grid->cells[new_y][new_x] = *cell; // Update the grid with the new cell position
+}
+
+// Moves a cell through the grid, to simulate its movement as if it were a person
+void move_cell_random(Grid *grid, Cell *cell)
+{
+    if (!grid || !cell)
+    {
+        fprintf(stderr, "Grid or cell is NULL\n");
+        return;
+    }
+
+    int new_x = rand() % grid->width;
+    int new_y = rand() % grid->height;
+
+    move_cell(grid, cell, new_x, new_y);
+}
