@@ -7,15 +7,15 @@ Time:
     - Uses discrete steps
 
 Legend:
-    MID - Microparasitic Infectious Diseases
-    S - Susceptible
-    E - Exposed
-    I - Infectious
-    R - Recovered
-    γ - Recover probability
-    D - Duration of infection
-    β - Transmission rate
-    σ - Latency period of infection
+    (MID) - Microparasitic Infectious Diseases
+    (S)   - Susceptible
+    (E)   - Exposed
+    (I)   - Infectious
+    (R)   - Recovered
+    (γ)   - Recover probability
+    (D)   - Duration of infection
+    (β)   - Transmission rate
+    (σ)   - Latency period of infection
     
 
 Population:
@@ -28,7 +28,7 @@ We assume that this is a well-mixed population.
 - If a cell is (S)
     1. Count how many neighbors are (I)
     2. Calculate the infection probability
-    3. Based on the result of the probability, decide if S state will change to either (E) or (I)
+    3. Based on the result of IP, decide if S state will change to either (E) or (I)
 - if a cell is (E)
     1. Calculate if (E) is within the latency period σ
     2. If σ is expired, (E) becomes (I) 
@@ -38,7 +38,17 @@ We assume that this is a well-mixed population.
 - If a cell is (R)
     1. Stay recovered (immune)
 
+Infection probability: (IP)
+    - P(infection) = 1 - (1 - β) ^ n, where n = number of (I) neighbors
+
 Additional simulations:
     1. Change cells from places to simulate steps (e.g. moving through a neighborhood)
     2. Vaccination can be done by assigning (R) randomly to cells from time to time that can also be defined randomly
 
+Implementation diary:
+    - 2D grid (implemented)
+    - Terminal helper functions (implementing as needed)
+    - Basic SEIR model
+        - SEIR creation, defining random states for each cell  (implemented)
+        - Cell movement (implemented)
+        - Cell state assignment (implemented)
