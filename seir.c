@@ -3,27 +3,31 @@
 // Create a SEIR model on the grid, by defining the initial states of the cells
 // It randomly assigns states such as (I) and (E) to some cells
 // Other cells will remain susceptible (S)
-void create_seir_model(Grid *grid) {
+void create_seir_model(Grid *grid)
+{
     srand(time(NULL)); // Seed the random number generator
-    if (!grid) {
+    if (!grid)
+    {
         fprintf(stderr, "Grid is NULL\n");
         return;
     }
-    
+
     // Decide randomly the initial state of each cell
     // For simplicity, all cells are initialized to susceptible state
     // Randomly sort the number of cells to be infected or exposed
     int infectious_cells = grid->width * grid->height / 10; // 10% of cells infected
-    int exposed_cells = grid->width * grid->height / 20; // 5% of cells exposed
+    int exposed_cells = grid->width * grid->height / 20;    // 5% of cells exposed
 
     // Randomly select cells to be infected or exposed
-    for (int i = 0; i < infectious_cells; i++) {
+    for (int i = 0; i < infectious_cells; i++)
+    {
         int x = rand() % grid->width;
         int y = rand() % grid->height;
         grid->cells[y][x].value = INFECTIOUS;
     }
 
-    for (int i = 0; i < exposed_cells; i++) {
+    for (int i = 0; i < exposed_cells; i++)
+    {
         int x = rand() % grid->width;
         int y = rand() % grid->height;
         grid->cells[y][x].value = EXPOSED;
@@ -35,50 +39,66 @@ void create_seir_model(Grid *grid) {
     print_grid(grid);
 }
 
-// Assign a different state to a given cell
-// Should be called when a cell suffer a state change based on probabilities
-void assign_state(Cell *cell, CellState state) {
-    if (cell) {
-        cell->value = state;
-    } else {
-        fprintf(stderr, "Cell is NULL\n");
-    }
-}
+/**
+ * Area with functions related to the model equations for probabilities
+ * These functions will be used to calculate the probabilities of state changes, including infection, exposure, and recovery.
+ * Legend:
+ *      (MID) - Microparasitic Infectious Diseases
+ *      (S)   - Susceptible
+ *      (E)   - Exposed
+ *      (I)   - Infectious
+ *      (R)   - Recovered
+ *      (γ)   - Recover probability
+ *      (D)   - Duration of infection
+ *      (β)   - Transmission rate
+ *      (σ)   - Latency period of infection
+ */
 
-void get_cell_state(const Cell *cell, CellState *state) {
-    if (cell && state) {
-        *state = cell->value;
-    } else {
-        fprintf(stderr, "Cell or state pointer is NULL\n");
-    }
-}
-
-// Moves a cell through the grid, to simulate its movement as if it were a person
-void move_cell(Grid *grid, Cell *cell, int new_x, int new_y) {
-    if (!grid || !cell) {
-        fprintf(stderr, "Grid or cell is NULL\n");
+// Calculate the infection probability for a cell based on its neighbors
+// The algorithm used is Moore's neighborhood
+// It counts the number of infectious neighbors and calculates the probability of infection
+// P(infection) = 1 - (1 - β) ^ n, where n = number of (I) neighbors
+// This function will be used to determine if a susceptible cell
+// will become exposed or infectious based on the infection probability
+void calculate_infection_probability(const Grid *grid, int x, int y, double *probability)
+{
+    if (!grid || x < 0 || x >= grid->width || y < 0 || y >= grid->height || !probability)
+    {
+        fprintf(stderr, "Invalid grid or coordinates\n");
         return;
     }
-    
-    if (new_x < 0 || new_x >= grid->width || new_y < 0 || new_y >= grid->height) {
-        fprintf(stderr, "New position out of bounds\n");
+
+    int width = grid->width;
+    int height = grid->height;
+    int infectious_neighbors = 0;
+
+    // Define the Moore neighborhood offsets
+    int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+
+    // Count infectious neighbors
+    for (int i = 0; i < 8; i++)
+    {
+        int new_x = x + dx[i];
+        int new_y = y + dy[i];
+
+        if (new_x >= 0 && new_x < width && new_y >= 0 && new_y < height) // This will check if the new position is within the grid bounds before proceeding to check the cell state
+        {
+            if (check_cell_state(&grid->cells[new_y][new_x], INFECTIOUS))
+            {
+                infectious_neighbors++;
+            }
+        }
+    }
+
+    if (infectious_neighbors == 0)
+    {
+        *probability = 0.0; // No infectious neighbors, no infection probability
         return;
     }
 
-    cell->x = new_x;
-    cell->y = new_y;
-    grid->cells[new_y][new_x] = *cell; // Update the grid with the new cell position
-}
+    // Calculate the infection probability
 
-// Moves a cell through the grid, to simulate its movement as if it were a person
-void move_cell_random(Grid *grid, Cell *cell) {
-    if (!grid || !cell) {
-        fprintf(stderr, "Grid or cell is NULL\n");
-        return;
-    }
-    
-    int new_x = rand() % grid->width;
-    int new_y = rand() % grid->height;
-
-    move_cell(grid, cell, new_x, new_y);
+    // Calculate infection probability based on the number of infectious neighbors
+    *probability = 1.0 - pow((1.0 - 0.1), infectious_neighbors); // Example transmission rate of 10%
 }
