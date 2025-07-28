@@ -59,4 +59,12 @@ Implementation diary:
         - Recover cells after the recovery time reaches 0
         - Latency period is used to calculate how much time is needed for a cell go from exposed -> infectious
         - Constant numbers defined in seir.h (BASE_D, BETA, LATENCY_PERIOD, GAMMA)
-        
+    - Similarity dimension
+        - Using box-counting method for similarity dimension
+        - To better analyse the spread, using linear regression: log(counts) vs log(1 / box_size) to account for multiple box-sizes
+        - Only uses valid points (non-zero)
+        - Read result:
+            - Start (0.0) no infections;
+            - Between 1.0 to 2.0 (infections form different structures, but is not fully spread);
+            - 2.0 (infection is fully spread); 
+            - >2.0 is not possible as this is a 2D grid, if it happens, there is an error, probably between the monitor and the chair
