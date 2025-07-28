@@ -68,3 +68,4 @@ Implementation diary:
             - Between 1.0 to 2.0 (infections form different structures, but is not fully spread);
             - 2.0 (infection is fully spread); 
             - >2.0 is not possible as this is a 2D grid, if it happens, there is an error, probably between the monitor and the chair
+    - Graphical UI for visualization using the SDL2 library
