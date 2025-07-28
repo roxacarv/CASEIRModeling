@@ -17,8 +17,8 @@
 void create_seir_model(Grid *grid);
 void calculate_infection_probability(Grid *grid, int x, int y);
 void calculate_latency_period(const Grid *grid, int x, int y);
-void can_be_exposed(Cell *cell, double *probability, int infectious_neighbors);
-void can_be_infected(Cell *cell, double *probability);
+void can_be_exposed(Cell *cell, CellList *cell_list, double *probability, int infectious_neighbors);
+void can_be_infected(Cell *cell, CellList *cell_list, double *probability);
 void can_be_recovered(Cell *cell, double *probability);
 void expose_cell(Cell *cell);
 void infect_cell(Cell *cell);

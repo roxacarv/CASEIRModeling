@@ -27,18 +27,35 @@ int main(void) {
         int x = rand() % grid->width;
         int y = rand() % grid->height;
         Cell *cell = &grid->cells[y][x];
+        
+        // Print the grid after moving the cell
+        print_grid(grid);
+        
         move_cell_random(grid, cell);
         calculate_infection_probability(grid, x, y);
         printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->state, cell->x, cell->y);
-
-        // Print the grid after moving the cell
-        print_grid(grid);
         
         // Simulate a delay for demonstration purposes
         sleep(1);
         time_step++;
     }
     double dim = estimate_similarity_dimension(grid, INFECTIOUS);
+    printf("Which cells caused infections:\n");
+    for (int i = 0; i < grid->height; i++) {
+        for (int j = 0; j < grid->width; j++) {
+            if (grid->cells[i][j].infection_count > 0) {
+                printf("Cell at (%d, %d) caused %d infections.\n", j, i, grid->cells[i][j].infection_count);
+            }
+        }
+    }
+    printf("Which cells caused exposures:\n");
+    for (int i = 0; i < grid->height; i++) {
+        for (int j = 0; j < grid->width; j++) {
+            if (grid->cells[i][j].exposure_count > 0) {
+                printf("Cell at (%d, %d) caused %d exposures.\n", j, i, grid->cells[i][j].exposure_count);
+            }
+        }
+    }
     printf("Estimated Similarity Dimension of infection: %.3f\n", dim);
     free_grid(grid);
     return 0;

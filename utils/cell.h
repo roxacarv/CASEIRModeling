@@ -24,6 +24,16 @@ typedef struct Cell {
     struct Cell *next;
 } Cell;
 
+typedef struct CellList {
+    Cell **data;
+    size_t size;
+    size_t capacity;
+} CellList;
+
+void init_cell_list(CellList *list);
+void append_cell(CellList *list, Cell *cell);
+void free_cell_list(CellList *list);
+
 void assign_state(Cell *cell, CellState state);
 int check_cell_state(const Cell *cell, CellState state);
 void increase_latency_period(Cell *cell);

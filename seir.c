@@ -83,19 +83,23 @@ void calculate_infection_probability(Grid *grid, int x, int y)
     int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
     int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 
+    CellList cell_list;
+    init_cell_list(&cell_list);
+
     // Count infectious neighbors
     for (int i = 0; i < 8; i++)
     {
         int new_x = x + dx[i];
         int new_y = y + dy[i];
 
-        if (new_x >= 0 && new_x < width && new_y >= 0 && new_y < height) // This will check if the new position is within the grid bounds before proceeding to check the cell state
-        {
-            if (check_cell_state(&grid->cells[new_y][new_x], INFECTIOUS))
+            if (new_x >= 0 && new_x < width && new_y >= 0 && new_y < height) // This will check if the new position is within the grid bounds before proceeding to check the cell state
             {
-                infectious_neighbors++;
+                if (check_cell_state(&grid->cells[new_y][new_x], INFECTIOUS))
+                {
+                    append_cell(&cell_list, &grid->cells[new_y][new_x]);
+                    infectious_neighbors++;
+                }
             }
-        }
     }
 
     printf("Number of infectious neighbors for cell at (%d, %d): %d\n", x, y, infectious_neighbors);
@@ -109,12 +113,12 @@ void calculate_infection_probability(Grid *grid, int x, int y)
     // Calculate the infection probability
     if (is_susceptible(&grid->cells[y][x]))
     {
-        can_be_exposed(&grid->cells[y][x], probability, infectious_neighbors); // Check if the cell can be exposed
+        can_be_exposed(&grid->cells[y][x], &cell_list, probability, infectious_neighbors); // Check if the cell can be exposed
     }
 
     if (is_exposed(&grid->cells[y][x]))
     {
-        can_be_infected(&grid->cells[y][x], probability);
+        can_be_infected(&grid->cells[y][x], &cell_list, probability);
     }
 
     if (is_infectious(&grid->cells[y][x]))
@@ -128,6 +132,8 @@ void calculate_infection_probability(Grid *grid, int x, int y)
         *probability = 0.0;
     }
 
+    free_cell_list(&cell_list);
+    free(probability);
     printf("Infection probability for cell at (%d, %d): %.2f\n", x, y, *probability);
 }
 
@@ -147,7 +153,7 @@ void calculate_latency_period(const Grid *grid, int x, int y)
     }
 }
 
-void can_be_exposed(Cell *cell, double *probability, int infectious_neighbors)
+void can_be_exposed(Cell *cell, CellList *cell_list, double *probability, int infectious_neighbors)
 {
     // If the cell is susceptible, calculate the infection probability based on infectious neighbors
     double rand_value = (double)(rand() / RAND_MAX); // Generate a random number between 0 and 1, this number will be used to determine if the cell will become exposed or infectious
@@ -155,11 +161,16 @@ void can_be_exposed(Cell *cell, double *probability, int infectious_neighbors)
     if (rand_value < *probability)
     {
         // If the random value is less than the calculated probability, the cell becomes exposed
+        for (int i = 0; i < cell_list->size; i++)
+        {
+            cell_list->data[i]->exposure_count++;
+        }
         expose_cell(cell);
+        printf("Cell at (%d, %d) has been exposed with a probability of %.2f.\n", cell->x, cell->y, *probability);
     }
 }
 
-void can_be_infected(Cell *cell, double *probability)
+void can_be_infected(Cell *cell, CellList *cell_list, double *probability)
 {
     if (is_latency_period(cell))
     {
@@ -170,7 +181,12 @@ void can_be_infected(Cell *cell, double *probability)
     }
     else
     {
+        for (int i = 0; i < cell_list->size; i++)
+        {
+            cell_list->data[i]->infection_count++;
+        }
         infect_cell(cell);
+        printf("Cell at (%d, %d) has been infected with a probability of %.2f.\n", cell->x, cell->y, *probability);
     }
 }
 

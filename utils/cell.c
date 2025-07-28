@@ -1,5 +1,38 @@
 #include "cell.h"
 
+void init_cell_list(CellList *list)
+{
+    list->data = malloc(4 * sizeof(Cell *));
+    list->size = 0;
+    list->capacity = 4;
+}
+
+void append_cell(CellList *list, Cell *cell)
+{
+    if (list->size >= list->capacity)
+    {
+        list->capacity *= 2;
+        list->data = realloc(list->data, list->capacity * sizeof(Cell *));
+        if (!list->data)
+        {
+            fprintf(stderr, "Memory allocation failed while resizing cell list\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    list->data[list->size++] = cell;
+}
+
+void free_cell_list(CellList *list)
+{
+    if (list)
+    {
+        free(list->data);
+        list->data = NULL;
+        list->size = 0;
+        list->capacity = 0;
+    }
+}
+
 // Assign a different state to a given cell
 // Should be called when a cell suffer a state change based on probabilities
 void assign_state(Cell *cell, CellState state)
