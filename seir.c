@@ -181,7 +181,7 @@ void can_be_recovered(Cell *cell, double *probability)
         *probability = 0.0;
         recover_cell(cell);
     }
-    decrease_recovery_time(cell);
+    decrease_recovery_time(cell, GAMMA); // Decrease the recovery time for the infectious cell
 }
 
 void expose_cell(Cell *cell)

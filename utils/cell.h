@@ -31,7 +31,7 @@ void increase_move_count(Cell *cell);
 void increase_infection_count(Cell *cell);
 void increase_exposure_count(Cell *cell);
 void decrease_latency_period(Cell *cell);
-void decrease_recovery_time(Cell *cell);
+void decrease_recovery_time(Cell *cell, int recovery_rate);
 bool is_latency_period(const Cell *cell);
 bool is_recovery_time(const Cell *cell);
 bool is_susceptible(const Cell *cell);

@@ -10,7 +10,7 @@
 #include "utils/grid.h"
 
 #define BETA 0.1 // Transmission rate (β)
-#define GAMMA 0.2 // Recovery rate (γ)
+#define GAMMA 1 // Recovery rate (γ), use 1 for discrete steps, works better with CA
 #define LATENCY_PERIOD 5 // Latency period for exposed cells (σ)
 #define BASE_D 10 // Base duration of infection (D), should be calculate with a random modifier for each cell
 

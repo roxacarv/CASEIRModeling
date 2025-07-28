@@ -72,11 +72,11 @@ void increase_exposure_count(Cell *cell)
     }
 }
 
-void decrease_latency_period(Cell *cell)
+void decrease_latency_period(Cell *cell, int recovery_rate)
 {
     if (cell && cell->latency_period > 0)
     {
-        cell->latency_period--;
+        cell->latency_period = (cell->latency_period > recovery_rate) ? cell->latency_period - recovery_rate : 0;
     }
     else
     {
