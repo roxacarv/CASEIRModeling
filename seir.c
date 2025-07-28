@@ -62,8 +62,14 @@ void create_seir_model(Grid *grid)
 // will become exposed or infectious based on the infection probability
 void calculate_infection_probability(Grid *grid, int x, int y)
 {
-    double probability = 0.0; // Initialize the infection probability
-        
+    double *probability = malloc(sizeof(double));
+    if (!probability)
+    {
+        fprintf(stderr, "Memory allocation failed for probability\n");
+        return;
+    }
+    *probability = 0.0; // Initialize the probability to 0
+
     if (!grid || x < 0 || x >= grid->width || y < 0 || y >= grid->height)
     {
         fprintf(stderr, "Invalid grid or coordinates\n");
@@ -97,42 +103,33 @@ void calculate_infection_probability(Grid *grid, int x, int y)
 
     if (infectious_neighbors == 0)
     {
-        probability = 0.0; // No infectious neighbors, no infection probability
+        *probability = 0.0; // No infectious neighbors, no infection probability
         return;
     }
 
     // Calculate the infection probability
     if (is_susceptible(&grid->cells[y][x]))
     {
-        // If the cell is susceptible, calculate the infection probability based on infectious neighbors
-        double rand_value = (double)(rand() / RAND_MAX); // Generate a random number between 0 and 1, this number will be used to determine if the cell will become exposed or infectious
-        probability = 1.0 - pow((1.0 - BETA), infectious_neighbors);
-        if (rand_value < probability)
-        {
-            // If the random value is less than the calculated probability, the cell becomes exposed
-            expose_cell(grid, x, y);
-        }
+        can_be_exposed(&grid->cells[y][x], probability, infectious_neighbors); // Check if the cell can be exposed
     }
-    
+
     if (is_exposed(&grid->cells[y][x]))
     {
-        // If the cell is exposed, it has a chance to become infectious
-        probability = 0.5;
+        can_be_infected(&grid->cells[y][x], probability);
     }
 
     if (is_infectious(&grid->cells[y][x]))
     {
-        // If the cell is infectious, it has a chance to recover
-        probability = 0.2;
+        can_be_recovered(&grid->cells[y][x], probability);
     }
-    
+
     if (is_recovered(&grid->cells[y][x]))
     {
         // If the cell is recovered, it remains in the recovered state
-        probability = 0.0;
+        *probability = 0.0;
     }
 
-    printf("Infection probability for cell at (%d, %d): %.2f\n", x, y, probability);
+    printf("Infection probability for cell at (%d, %d): %.2f\n", x, y, *probability);
 }
 
 void calculate_latency_period(const Grid *grid, int x, int y)
@@ -143,58 +140,83 @@ void calculate_latency_period(const Grid *grid, int x, int y)
         return;
     }
 
-    // 
+    //
     Cell *cell = &grid->cells[y][x];
     if (is_exposed(cell))
-    { 
+    {
         printf("Cell at (%d, %d) is exposed with a latency period of %d time steps.\n", x, y, cell->latency_period);
     }
 }
 
-void expose_cell(Grid *grid, int x, int y)
+void can_be_exposed(Cell *cell, double *probability, int infectious_neighbors)
 {
-    if (!grid || x < 0 || x >= grid->width || y < 0 || y >= grid->height)
+    // If the cell is susceptible, calculate the infection probability based on infectious neighbors
+    double rand_value = (double)(rand() / RAND_MAX); // Generate a random number between 0 and 1, this number will be used to determine if the cell will become exposed or infectious
+    *probability = 1.0 - pow((1.0 - BETA), infectious_neighbors);
+    if (rand_value < *probability)
     {
-        fprintf(stderr, "Invalid grid or coordinates\n");
-        return;
-    }
-
-    Cell *cell = &grid->cells[y][x];
-    if (is_susceptible(cell))
-    {
-        cell->state = EXPOSED; // Change state to exposed
-        printf("Cell at (%d, %d) has been exposed.\n", x, y);
+        // If the random value is less than the calculated probability, the cell becomes exposed
+        expose_cell(cell);
     }
 }
 
-void infect_cell(Grid *grid, int x, int y)
+void can_be_infected(Cell *cell, double *probability)
 {
-    if (!grid || x < 0 || x >= grid->width || y < 0 || y >= grid->height)
+    if (is_latency_period(cell))
     {
-        fprintf(stderr, "Invalid grid or coordinates\n");
-        return;
+        // If the cell is exposed and in the latency period, it will not become infectious yet
+        // We assume the MID (Microparasitic Infectious Diseases) pathogen has a latency period
+        *probability = 0.0;
+        decrease_latency_period(cell); // Decrease the latency period for the exposed cell
     }
-
-    Cell *cell = &grid->cells[y][x];
-    if (is_exposed(cell))
+    else
     {
-        cell->state = INFECTIOUS; // Change state to infectious
-        printf("Cell at (%d, %d) has been infected and is now infectious.\n", x, y);
+        infect_cell(cell);
     }
 }
 
-void recover_cell(Grid *grid, int x, int y)
+void can_be_recovered(Cell *cell, double *probability)
 {
-    if (!grid || x < 0 || x >= grid->width || y < 0 || y >= grid->height)
+    if (is_recovery_time(cell))
+    {
+        *probability = 0.0;
+        recover_cell(cell);
+    }
+    decrease_recovery_time(cell);
+}
+
+void expose_cell(Cell *cell)
+{
+    if (!cell)
     {
         fprintf(stderr, "Invalid grid or coordinates\n");
         return;
     }
 
-    Cell *cell = &grid->cells[y][x];
-    if (is_infectious(cell))
+    assign_state(cell, EXPOSED);
+    printf("Cell at (%d, %d) has been exposed.\n", cell->x, cell->y);
+}
+
+void infect_cell(Cell *cell)
+{
+    if (!cell)
     {
-        cell->state = RECOVERED; // Change state to recovered
-        printf("Cell at (%d, %d) has recovered.\n", x, y);
+        fprintf(stderr, "Invalid cell\n");
+        return;
     }
+
+    assign_state(cell, INFECTIOUS);
+    printf("Cell at (%d, %d) has been infected.\n", cell->x, cell->y);
+}
+
+void recover_cell(Cell *cell)
+{
+    if (!cell)
+    {
+        fprintf(stderr, "Invalid cell\n");
+        return;
+    }
+
+    assign_state(cell, RECOVERED);
+    printf("Cell at (%d, %d) has recovered.\n", cell->x, cell->y);
 }

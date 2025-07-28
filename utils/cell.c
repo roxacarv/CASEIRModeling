@@ -68,10 +68,24 @@ void decrease_latency_period(Cell *cell)
     }
 }
 
+void decrease_recovery_time(Cell *cell)
+{
+    if (cell && cell->recovery_time > 0) {
+        cell->recovery_time--;
+    } else {
+        fprintf(stderr, "Cell is NULL or recovery time is already zero\n");
+    }
+}
+
 // If the cell is exposed, return if the latency period is greater than 0: the cell is still in the latency period and should not become infectious
 bool is_latency_period(const Cell *cell)
 {
     return cell && cell->latency_period > 0;
+}
+
+bool is_recovery_time(const Cell *cell)
+{
+    return cell && cell->recovery_time > 0;
 }
 
 bool is_susceptible(const Cell *cell)
