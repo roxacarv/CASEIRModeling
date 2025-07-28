@@ -1,20 +1,27 @@
 #include "main.h"
 
 int main(void) {
-    signal(SIGINT, sigint_handler); // Handle Ctrl+C to clean up resources
+    signal(SIGINT, sigint_handler);                       // Handle Ctrl+C to clean up resources
     srand((unsigned int)(time(NULL) ^ (uintptr_t)&main)); // Seed the random number generator with a unique value
 
+    
     Grid *grid = new_grid(32, 32);
     if (!grid) {
         return 1;
     }
-
+    
     create_seir_model(grid);
-    print_grid(grid);
+
+    SDL_Renderer *renderer = init_sdl("SEIR Model Simulation", grid->width * CELL_SIZE, grid->height * CELL_SIZE);
+    if (!renderer) {
+        fprintf(stderr, "Failed to initialize SDL renderer\n");
+        return 1;
+    }
 
     int time_step = 0;
+    render_grid(renderer, grid); // Initial render of the grid
 
-    printf("Starting the simulation...\n");
+    // printf("Starting the simulation...\n");
     // Simulate the SEIR model for a number of time steps
     while(time_step <= MAX_ITERATIONS) {
         if (!grid) {
@@ -29,8 +36,9 @@ int main(void) {
         Cell *cell = &grid->cells[y][x];
         
         // Print the grid after moving the cell
-        print_grid(grid);
-        
+        // print_grid(grid);
+        render_grid(renderer, grid); // Render the grid using SDL (if initialized)
+
         move_cell_random(grid, cell);
         calculate_infection_probability(grid, x, y);
         printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->state, cell->x, cell->y);
