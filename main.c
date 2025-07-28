@@ -4,7 +4,7 @@ int main(void) {
     signal(SIGINT, sigint_handler); // Handle Ctrl+C to clean up resources
     srand((unsigned int)(time(NULL) ^ (uintptr_t)&main)); // Seed the random number generator with a unique value
 
-    Grid *grid = new_grid(15, 15);
+    Grid *grid = new_grid(32, 32);
     if (!grid) {
         return 1;
     }
@@ -35,10 +35,11 @@ int main(void) {
         print_grid(grid);
         
         // Simulate a delay for demonstration purposes
-        sleep(2);
+        sleep(1);
         time_step++;
     }
-
+    double dim = estimate_similarity_dimension(grid, INFECTIOUS);
+    printf("Estimated Similarity Dimension of infection: %.3f\n", dim);
     free_grid(grid);
     return 0;
 }

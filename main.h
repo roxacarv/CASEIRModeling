@@ -10,8 +10,9 @@
 
 #include "utils/grid.h"
 #include "utils/line.h"
+#include "utils/dim.h"
 #include "seir.h"
 
-#define MAX_ITERATIONS 50
+#define MAX_ITERATIONS 150
 
 #endif // MAIN_H

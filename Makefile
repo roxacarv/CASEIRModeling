@@ -5,7 +5,7 @@ CC = gcc
 TARGET = obj/program
 
 # Source files
-SRCS = utils/cell.c utils/grid.c utils/line.c seir.c main.c
+SRCS = utils/cell.c utils/grid.c utils/dim.c utils/line.c seir.c main.c
 
 # Build command
 compile_seir:
