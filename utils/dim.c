@@ -1,7 +1,12 @@
 #include "dim.h"
 
+/**
+ * Estimates the similarity (fractal) dimension of a given state in a grid using the box-counting method.
+ *
+ * The estimated similarity dimension as a double, or NAN if estimation is not possible for better error resolution.
+ */
 double estimate_similarity_dimension(const Grid *grid, CellState target_state) {
-    int sizes[] = {1, 2, 4, 8, 16, 32}; // box sizes (you can expand this)
+    int sizes[] = {1, 2, 4, 8, 16, 32}; // box sizes used for similarity dimension estimation
     int counts[sizeof(sizes)/sizeof(sizes[0])];
     int num_sizes = sizeof(sizes)/sizeof(sizes[0]);
 
@@ -36,24 +41,25 @@ double estimate_similarity_dimension(const Grid *grid, CellState target_state) {
     double sum_log_r2 = 0;
 
     // Calculate sums for linear regression
+    int valid_points = 0; // Count all valid points, meaning non-zero counts
     for (int i = 0; i < num_sizes; i++) { // Ignore empty boxes
-        if (sizes[i] <= 0) continue; // Avoid division by zero
         if (counts[i] == 0) continue;
         double r = 1.0 / sizes[i];
-        double log_r = log(r);
+        double inv_box_size = 1.0 / sizes[i];
+        double log_inv_box_size = log(inv_box_size);
         double log_n = log(counts[i]);
 
-        sum_log_r += log_r;
+        sum_log_r += log_inv_box_size;
         sum_log_n += log_n;
-        sum_log_rn += log_r * log_n;
-        sum_log_r2 += log_r * log_r;
+        sum_log_rn += log_inv_box_size * log_n;
+        sum_log_r2 += log_inv_box_size * log_inv_box_size;
+        valid_points++;
     }
 
-    double n = num_sizes;
+    double n = valid_points;
     double numerator = n * sum_log_rn - sum_log_r * sum_log_n;
     double denominator = n * sum_log_r2 - sum_log_r * sum_log_r;
-
-    if (denominator == 0) return 0;
+    if (denominator == 0) return NAN;
 
     double similarity_dimension = numerator / denominator;
 
