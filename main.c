@@ -28,7 +28,8 @@ int main(void) {
         int y = rand() % grid->height;
         Cell *cell = &grid->cells[y][x];
         move_cell_random(grid, cell);
-        printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->value, cell->x, cell->y);
+        calculate_infection_probability(grid, x, y);
+        printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->state, cell->x, cell->y);
 
         // Print the grid after moving the cell
         print_grid(grid);

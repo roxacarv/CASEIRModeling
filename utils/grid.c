@@ -28,7 +28,7 @@ Grid *new_grid(int width, int height) {
         for (int j = 0; j < width; j++) {
             grid->cells[i][j].x = j;
             grid->cells[i][j].y = i;
-            grid->cells[i][j].value = SUSCEPTIBLE; // Initialize to susceptible state
+            grid->cells[i][j].state = SUSCEPTIBLE; // Initialize to susceptible state
             grid->cells[i][j].next = NULL;
         }
     }
@@ -40,7 +40,7 @@ void update_cell(Grid *grid, int x, int y, int new_value) {
         fprintf(stderr, "Invalid grid or coordinates\n");
         return;
     }
-    grid->cells[y][x].value = new_value;
+    grid->cells[y][x].state = new_value;
 }
 
 void free_grid(Grid *grid) {
@@ -60,7 +60,7 @@ void print_grid(const Grid *grid) {
     }
     for (int i = 0; i < grid->height; i++) {
         for (int j = 0; j < grid->width; j++) {
-            printf("%d ", grid->cells[i][j].value);
+            printf("%d ", grid->cells[i][j].state);
         }
         printf("\n");
     }

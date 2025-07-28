@@ -6,7 +6,7 @@ void assign_state(Cell *cell, CellState state)
 {
     if (cell)
     {
-        cell->value = state;
+        cell->state = state;
     }
     else
     {
@@ -20,7 +20,58 @@ int check_cell_state(const Cell *cell, CellState state)
         fprintf(stderr, "Cell is NULL\n");
         return 0;
     }
-    return cell->value == state;
+    return cell->state == state;
+}
+
+void increase_latency_period(Cell *cell)
+{
+    if (cell) {
+        cell->latency_period++;
+    } else {
+        fprintf(stderr, "Cell is NULL\n");
+    }
+}
+
+void increase_move_count(Cell *cell)
+{
+    if (cell) {
+        cell->move_count++;
+    } else {
+        fprintf(stderr, "Cell is NULL\n");
+    }
+}
+
+void increase_infection_count(Cell *cell)
+{
+    if (cell) {
+        cell->infection_count++;
+    } else {
+        fprintf(stderr, "Cell is NULL\n");
+    }
+}
+
+void increase_exposure_count(Cell *cell)
+{
+    if (cell) {
+        cell->exposure_count++;
+    } else {
+        fprintf(stderr, "Cell is NULL\n");
+    }
+}
+
+void decrease_latency_period(Cell *cell)
+{
+    if (cell && cell->latency_period > 0) {
+        cell->latency_period--;
+    } else {
+        fprintf(stderr, "Cell is NULL or latency period is already zero\n");
+    }
+}
+
+// If the cell is exposed, return if the latency period is greater than 0: the cell is still in the latency period and should not become infectious
+bool is_latency_period(const Cell *cell)
+{
+    return cell && cell->latency_period > 0;
 }
 
 bool is_susceptible(const Cell *cell)
