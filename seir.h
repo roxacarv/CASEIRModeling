@@ -12,7 +12,7 @@
 #define BETA 0.1 // Transmission rate (β)
 #define GAMMA 0.2 // Recovery rate (γ)
 #define LATENCY_PERIOD 5 // Latency period for exposed cells (σ)
-#define BASE_D = 10 // Base duration of infection (D), should be calculate with a random modifier for each cell
+#define BASE_D 10 // Base duration of infection (D), should be calculate with a random modifier for each cell
 
 void create_seir_model(Grid *grid);
 void calculate_infection_probability(Grid *grid, int x, int y);

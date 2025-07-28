@@ -16,7 +16,8 @@ void assign_state(Cell *cell, CellState state)
 
 int check_cell_state(const Cell *cell, CellState state)
 {
-    if (!cell) {
+    if (!cell)
+    {
         fprintf(stderr, "Cell is NULL\n");
         return 0;
     }
@@ -25,55 +26,77 @@ int check_cell_state(const Cell *cell, CellState state)
 
 void increase_latency_period(Cell *cell)
 {
-    if (cell) {
+    if (cell)
+    {
         cell->latency_period++;
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Cell is NULL\n");
     }
 }
 
 void increase_move_count(Cell *cell)
 {
-    if (cell) {
+    if (cell)
+    {
         cell->move_count++;
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Cell is NULL\n");
     }
 }
 
 void increase_infection_count(Cell *cell)
 {
-    if (cell) {
+    if (cell)
+    {
         cell->infection_count++;
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Cell is NULL\n");
     }
 }
 
 void increase_exposure_count(Cell *cell)
 {
-    if (cell) {
+    if (cell)
+    {
         cell->exposure_count++;
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Cell is NULL\n");
     }
 }
 
 void decrease_latency_period(Cell *cell)
 {
-    if (cell && cell->latency_period > 0) {
+    if (cell && cell->latency_period > 0)
+    {
         cell->latency_period--;
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Cell is NULL or latency period is already zero\n");
     }
 }
 
 void decrease_recovery_time(Cell *cell)
 {
-    if (cell && cell->recovery_time > 0) {
+    if (cell && cell->recovery_time > 0)
+    {
         cell->recovery_time--;
-    } else {
-        fprintf(stderr, "Cell is NULL or recovery time is already zero\n");
+    }
+    else if (cell)
+    {
+        fprintf(stderr, "Cell is recovery time is already zero\n");
+    }
+    else
+    {
+        fprintf(stderr, "Cell is NULL\n");
     }
 }
 

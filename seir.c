@@ -5,7 +5,6 @@
 // Other cells will remain susceptible (S)
 void create_seir_model(Grid *grid)
 {
-    srand(time(NULL)); // Seed the random number generator
     if (!grid)
     {
         fprintf(stderr, "Grid is NULL\n");
@@ -15,8 +14,8 @@ void create_seir_model(Grid *grid)
     // Decide randomly the initial state of each cell
     // For simplicity, all cells are initialized to susceptible state
     // Randomly sort the number of cells to be infected or exposed
-    int infectious_cells = grid->width * grid->height / 10; // 10% of cells infected
-    int exposed_cells = grid->width * grid->height / 20;    // 5% of cells exposed
+    int infectious_cells = grid->width * grid->height / 5; // 20% of cells infected
+    int exposed_cells = grid->width * grid->height / 10;    // 10% of cells exposed
 
     // Randomly select cells to be infected or exposed
     for (int i = 0; i < infectious_cells; i++)
@@ -192,8 +191,8 @@ void expose_cell(Cell *cell)
         fprintf(stderr, "Invalid grid or coordinates\n");
         return;
     }
-
     assign_state(cell, EXPOSED);
+    cell->latency_period = LATENCY_PERIOD;
     printf("Cell at (%d, %d) has been exposed.\n", cell->x, cell->y);
 }
 
@@ -206,6 +205,7 @@ void infect_cell(Cell *cell)
     }
 
     assign_state(cell, INFECTIOUS);
+    cell->recovery_time = BASE_D + (rand() % 5);
     printf("Cell at (%d, %d) has been infected.\n", cell->x, cell->y);
 }
 

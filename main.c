@@ -2,6 +2,7 @@
 
 int main(void) {
     signal(SIGINT, sigint_handler); // Handle Ctrl+C to clean up resources
+    srand((unsigned int)(time(NULL) ^ (uintptr_t)&main)); // Seed the random number generator with a unique value
 
     Grid *grid = new_grid(15, 15);
     if (!grid) {
@@ -22,7 +23,6 @@ int main(void) {
         }
         clear_term(); // Clear the terminal for better visualization
         printf("Iteration: %d\n", time_step);
-        srand(time(NULL) + time_step); // Seed the random number generator with time step for variability
         // Randomly select a cell to move
         int x = rand() % grid->width;
         int y = rand() % grid->height;
@@ -35,7 +35,7 @@ int main(void) {
         print_grid(grid);
         
         // Simulate a delay for demonstration purposes
-        sleep(1);
+        sleep(2);
         time_step++;
     }
 
