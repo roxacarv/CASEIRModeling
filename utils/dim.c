@@ -26,29 +26,33 @@ double estimate_similarity_dimension(const Grid *grid, CellState target_state) {
                         }
                     }
                 }
-
                 if (found) count++;
             }
         }
-
         counts[s] = count;
     }
 
+    return calculate_similarity_dim(sizes, counts, num_sizes);
+}
+
+
+double calculate_similarity_dim(int sizes[], int *counts, int num_sizes) {
     // Using linear regression: log(counts) vs log(1 / box_size)
     double sum_log_r = 0;
     double sum_log_n = 0;
     double sum_log_rn = 0;
     double sum_log_r2 = 0;
 
-    // Calculate sums for linear regression
+    // Calculate linear regression parameters
     int valid_points = 0; // Count all valid points, meaning non-zero counts
-    for (int i = 0; i < num_sizes; i++) { // Ignore empty boxes
-        if (counts[i] == 0) continue;
+    for (int i = 0; i < num_sizes; i++) { 
+        if (counts[i] == 0) continue; // Ignore empty boxes, boxes that had no infectious cells
         double r = 1.0 / sizes[i];
         double inv_box_size = 1.0 / sizes[i];
         double log_inv_box_size = log(inv_box_size);
         double log_n = log(counts[i]);
 
+        // Accumulate sums for linear regression
         sum_log_r += log_inv_box_size;
         sum_log_n += log_n;
         sum_log_rn += log_inv_box_size * log_n;
@@ -60,8 +64,5 @@ double estimate_similarity_dimension(const Grid *grid, CellState target_state) {
     double numerator = n * sum_log_rn - sum_log_r * sum_log_n;
     double denominator = n * sum_log_r2 - sum_log_r * sum_log_r;
     if (denominator == 0) return NAN;
-
-    double similarity_dimension = numerator / denominator;
-
-    return similarity_dimension;
+    return numerator / denominator; // Return the slope of the line, which is the similarity dimension
 }

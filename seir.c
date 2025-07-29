@@ -221,7 +221,7 @@ void infect_cell(Cell *cell)
     }
 
     assign_state(cell, INFECTIOUS);
-    cell->recovery_time = BASE_D + (rand() % 5);
+    cell->recovery_time = BASE_D + (rand() % 5); // Adds an individual heterogeneity through a random modifier
     printf("Cell at (%d, %d) has been infected.\n", cell->x, cell->y);
 }
 
