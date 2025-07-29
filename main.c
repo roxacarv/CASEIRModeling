@@ -1,25 +1,24 @@
 #include "main.h"
 
-int main(void) {
+int main(void)
+{
     signal(SIGINT, sigint_handler);                       // Handle Ctrl+C to clean up resources
     srand((unsigned int)(time(NULL) ^ (uintptr_t)&main)); // Seed the random number generator with a unique value
 
-    int *statistics[3] = {0, 0, 0}; // Array to hold total moves, infections, and exposures
+    int moves = 0, infections = 0, exposures = 0;
+    int *statistics[3] = {&moves, &infections, &exposures}; // Array to hold pointers for total moved, total infections, and total exposures
 
-    for (int i = 0; i < 3; i++) {
-        statistics[i] = malloc(sizeof(int));
-        *statistics[i] = 0;       
-    }
-
-    Grid *grid = new_grid(32, 32);
-    if (!grid) {
+    Grid *grid = new_grid(GRID_WIDTH, GRID_HEIGHT);
+    if (!grid)
+    {
         return 1;
     }
-    
+
     create_seir_model(grid);
 
     SDL_Renderer *renderer = init_sdl("SEIR Model Simulation", grid->width * CELL_SIZE + STATISTICS_WIDTH, grid->height * CELL_SIZE);
-    if (!renderer) {
+    if (!renderer)
+    {
         fprintf(stderr, "Failed to initialize SDL renderer\n");
         return 1;
     }
@@ -28,24 +27,28 @@ int main(void) {
     render_grid(renderer, grid); // Initial render of the grid
 
     TTF_Font *font = load_font();
-    if (!font) {
+    if (!font)
+    {
         fprintf(stderr, "Failed to load font\n");
         return 1;
     }
     // printf("Starting the simulation...\n");
     // Simulate the SEIR model for a number of time steps
-    while(time_step <= MAX_ITERATIONS) {
-        if (!grid) {
+    while (time_step <= MAX_ITERATIONS)
+    {
+        if (!grid)
+        {
             fprintf(stderr, "Grid is NULL\n");
             break;
         }
+        printf("iteration: %d", time_step);
         clear_term(); // Clear the terminal for better visualization
         printf("Iteration: %d\n", time_step);
         // Randomly select a cell to move
         int x = rand() % grid->width;
         int y = rand() % grid->height;
         Cell *cell = &grid->cells[y][x];
-        
+
         // Print the grid after moving the cell
         // print_grid(grid);
         render_grid(renderer, grid); // Render the grid using SDL (if initialized)
@@ -55,73 +58,82 @@ int main(void) {
 
         track_cell_statistics(grid, statistics); // Collect statistics about the cells
         render_statistics(*statistics[0], *statistics[1], *statistics[2], time_step, renderer, font);
-        
-        printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->state, cell->x, cell->y);
-        
+
+        // printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->state, cell->x, cell->y);
+
         // Simulate a delay for demonstration purposes
-        sleep(1);
+        // sleep(1);
         time_step++;
     }
     double dim = estimate_similarity_dimension(grid, INFECTIOUS);
     printf("Which cells caused infections:\n");
-    for (int i = 0; i < grid->height; i++) {
-        for (int j = 0; j < grid->width; j++) {
-            if (grid->cells[i][j].infection_count > 0) {
-                printf("Cell at (%d, %d) caused %d infections.\n", j, i, grid->cells[i][j].infection_count);
+    for (int i = 0; i < grid->height; i++)
+    {
+        for (int j = 0; j < grid->width; j++)
+        {
+            if (grid->cells[i][j].infection_count > 0)
+            {
+                // printf("Cell at (%d, %d) caused %d infections.\n", j, i, grid->cells[i][j].infection_count);
             }
         }
     }
     printf("Which cells caused exposures:\n");
-    for (int i = 0; i < grid->height; i++) {
-        for (int j = 0; j < grid->width; j++) {
-            if (grid->cells[i][j].exposure_count > 0) {
-                printf("Cell at (%d, %d) caused %d exposures.\n", j, i, grid->cells[i][j].exposure_count);
+    for (int i = 0; i < grid->height; i++)
+    {
+        for (int j = 0; j < grid->width; j++)
+        {
+            if (grid->cells[i][j].exposure_count > 0)
+            {
+                // printf("Cell at (%d, %d) caused %d exposures.\n", j, i, grid->cells[i][j].exposure_count);
             }
         }
     }
     printf("Estimated Similarity Dimension of infection: %.3f\n", dim);
     printf("Total Moves: %d, Total Infections: %d, Total Exposures: %d\n",
-           statistics[0], statistics[1], statistics[2]);
-    // Clean up SDL resources
-    if (renderer) {     
-        SDL_DestroyRenderer(renderer);
-    }
-    SDL_Quit();
-    
-    // Free allocated resources
-    for (int i = 0; i < 3; i++) {
-        free(statistics[i]);
-    }
-    free_grid(grid);
+           *statistics[0], *statistics[1], *statistics[2]);
 
     FILE *csv_file = fopen(CSV_FILE, "w");
-    if (!csv_file) {
+    if (!csv_file)
+    {
         fprintf(stderr, "Failed to open CSV file for writing\n");
         return 1;
     }
 
-    save_to_csv(csv_file, time_step, 
-        count_cells(grid, SUSCEPTIBLE), 
-        count_cells(grid, EXPOSED), 
-        count_cells(grid, INFECTIOUS), 
-        count_cells(grid, RECOVERED),
-        *statistics[0], *statistics[1], *statistics[2],
-        calculate_avg_state_count(grid, INFECTIOUS), 
-        calculate_avg_state_count(grid, EXPOSED),
-        calculate_avg_move_count(grid));
+    save_to_csv(csv_file, time_step,
+                count_cells(grid, SUSCEPTIBLE),
+                count_cells(grid, EXPOSED),
+                count_cells(grid, INFECTIOUS),
+                count_cells(grid, RECOVERED),
+                *statistics[0], *statistics[1], *statistics[2],
+                calculate_avg_state_count(grid, INFECTIOUS),
+                calculate_avg_state_count(grid, EXPOSED),
+                calculate_avg_move_count(grid), dim);
     return 0;
+    // Clean up SDL resources
+    if (renderer)
+    {
+        SDL_DestroyRenderer(renderer);
+    }
+    SDL_Quit();
+
+    free_grid(grid);
 }
 
-void track_cell_statistics(const Grid *grid, int *statistics[]) {
-    if (!grid) {
+void track_cell_statistics(const Grid *grid, int *statistics[])
+{
+    if (!grid)
+    {
         fprintf(stderr, "Grid is NULL\n");
         return;
     }
 
-    for (int i = 0; i < grid->height; i++) {
-        for (int j = 0; j < grid->width; j++) {
+    for (int i = 0; i < grid->height; i++)
+    {
+        for (int j = 0; j < grid->width; j++)
+        {
             const Cell *cell = &grid->cells[i][j];
-            if (!cell) {
+            if (!cell)
+            {
                 fprintf(stderr, "Cell at (%d, %d) is NULL\n", j, i);
                 continue;
             }
@@ -130,14 +142,16 @@ void track_cell_statistics(const Grid *grid, int *statistics[]) {
             *statistics[1] += cell->infection_count;
             *statistics[2] += cell->exposure_count;
 
-            printf("Cell at (%d, %d): State: %d, Move Count: %d, Infection Count: %d, Exposure Count: %d\n",
-                   j, i, cell->state, cell->move_count, cell->infection_count, cell->exposure_count);
+            // printf("Cell at (%d, %d): State: %d, Move Count: %d, Infection Count: %d, Exposure Count: %d\n",
+            // j, i, cell->state, cell->move_count, cell->infection_count, cell->exposure_count);
         }
     }
 }
 
-double calculate_avg_move_count(const Grid *grid) {
-    if (!grid) {
+double calculate_avg_move_count(const Grid *grid)
+{
+    if (!grid)
+    {
         fprintf(stderr, "Grid is NULL\n");
         return 0.0;
     }
@@ -145,10 +159,13 @@ double calculate_avg_move_count(const Grid *grid) {
     int total_moves = 0;
     int total_cells = 0;
 
-    for (int i = 0; i < grid->height; i++) {
-        for (int j = 0; j < grid->width; j++) {
+    for (int i = 0; i < grid->height; i++)
+    {
+        for (int j = 0; j < grid->width; j++)
+        {
             const Cell *cell = &grid->cells[i][j];
-            if (cell) {
+            if (cell)
+            {
                 total_moves += cell->move_count;
                 total_cells++;
             }
@@ -158,8 +175,10 @@ double calculate_avg_move_count(const Grid *grid) {
     return calculate_avg(total_moves, total_cells);
 }
 
-double calculate_avg_state_count(const Grid *grid, int state) {
-    if (!grid) {
+double calculate_avg_state_count(const Grid *grid, int state)
+{
+    if (!grid)
+    {
         fprintf(stderr, "Grid is NULL\n");
         return 0.0;
     }
@@ -167,23 +186,27 @@ double calculate_avg_state_count(const Grid *grid, int state) {
     int total_count = 0;
     int total_cells = 0;
 
-    for (int i = 0; i < grid->height; i++) {
-        for (int j = 0; j < grid->width; j++) {
+    for (int i = 0; i < grid->height; i++)
+    {
+        for (int j = 0; j < grid->width; j++)
+        {
             const Cell *cell = &grid->cells[i][j];
-            if (cell->state == state) {
-                switch (cell->state) {
-                    case SUSCEPTIBLE:
-                        total_count += cell->infection_count;
-                        break;
-                    case EXPOSED:
-                        total_count += cell->exposure_count;
-                        break;
-                    case INFECTIOUS:
-                        total_count += cell->move_count;
-                        break;
-                    case RECOVERED:
-                        // Recovered cells do not contribute to infection or exposure counts
-                        break;
+            if (cell->state == state)
+            {
+                switch (cell->state)
+                {
+                case SUSCEPTIBLE:
+                    total_count += cell->infection_count;
+                    break;
+                case EXPOSED:
+                    total_count += cell->exposure_count;
+                    break;
+                case INFECTIOUS:
+                    total_count += cell->move_count;
+                    break;
+                case RECOVERED:
+                    // Recovered cells do not contribute to infection or exposure counts
+                    break;
                 }
                 total_cells++;
             }
@@ -193,16 +216,19 @@ double calculate_avg_state_count(const Grid *grid, int state) {
     return calculate_avg(total_count, total_cells);
 }
 
-double calculate_avg(int total, int count) {
+double calculate_avg(int total, int count)
+{
     return (count > 0) ? (double)total / count : 0.0;
 }
 
 void save_to_csv(FILE *csv_file, int timestep, int S, int E, int I, int R,
-                  int total_moves, int total_exposures, int total_infections,
-                  double avg_infection_count, double avg_exposed_count, double avg_move_count) {
-    fprintf(csv_file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f\n",
-        timestep, S, E, I, R,
-        total_moves, total_exposures, total_infections,
-        avg_infection_count, avg_exposed_count, avg_move_count);
-    fflush(csv_file);
+                 int total_moves, int total_exposures, int total_infections,
+                 double avg_infection_count, double avg_exposed_count, double avg_move_count, double dim)
+{
+    fprintf(csv_file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%.2f\n",
+            timestep, S, E, I, R,
+            total_moves, total_exposures, total_infections,
+            avg_infection_count, avg_exposed_count, avg_move_count, dim);
+    fclose(csv_file);
+    printf("Statistics saved to %s\n", CSV_FILE);
 }

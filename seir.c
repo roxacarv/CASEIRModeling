@@ -159,7 +159,7 @@ void calculate_latency_period(const Grid *grid, int x, int y)
     Cell *cell = &grid->cells[y][x];
     if (is_exposed(cell))
     {
-        printf("Cell at (%d, %d) is exposed with a latency period of %d time steps.\n", x, y, cell->latency_period);
+        //printf("Cell at (%d, %d) is exposed with a latency period of %d time steps.\n", x, y, cell->latency_period);
     }
 }
 
@@ -186,7 +186,7 @@ void can_be_exposed(Cell *cell, CellList *cell_list, double *probability, int in
         }
 
         expose_cell(cell);
-        printf("Cell at (%d, %d) has been exposed with a probability of %.2f.\n", cell->x, cell->y, *probability);
+        //printf("Cell at (%d, %d) has been exposed with a probability of %.2f.\n", cell->x, cell->y, *probability);
     }
 }
 
@@ -206,7 +206,7 @@ void can_be_infected(Cell *cell, CellList *cell_list, double *probability)
             cell_list->data[i]->infection_count++;
         }
         infect_cell(cell);
-        printf("Cell at (%d, %d) has been infected with a probability of %.2f.\n", cell->x, cell->y, *probability);
+        //printf("Cell at (%d, %d) has been infected with a probability of %.2f.\n", cell->x, cell->y, *probability);
     }
 }
 
@@ -229,7 +229,7 @@ void expose_cell(Cell *cell)
     }
     assign_state(cell, EXPOSED);
     cell->latency_period = LATENCY_PERIOD;
-    printf("Cell at (%d, %d) has been exposed.\n", cell->x, cell->y);
+    //printf("Cell at (%d, %d) has been exposed.\n", cell->x, cell->y);
 }
 
 void infect_cell(Cell *cell)
@@ -242,7 +242,7 @@ void infect_cell(Cell *cell)
 
     assign_state(cell, INFECTIOUS);
     cell->recovery_time = BASE_D + (rand() % 5); // Adds an individual heterogeneity through a random modifier
-    printf("Cell at (%d, %d) has been infected.\n", cell->x, cell->y);
+    //printf("Cell at (%d, %d) has been infected.\n", cell->x, cell->y);
 }
 
 void recover_cell(Cell *cell)
@@ -254,5 +254,5 @@ void recover_cell(Cell *cell)
     }
 
     assign_state(cell, RECOVERED);
-    printf("Cell at (%d, %d) has recovered.\n", cell->x, cell->y);
+    //printf("Cell at (%d, %d) has recovered.\n", cell->x, cell->y);
 }
