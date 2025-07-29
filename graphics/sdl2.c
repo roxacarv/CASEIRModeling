@@ -60,11 +60,15 @@ void render_grid(SDL_Renderer *ren, const Grid *grid)
     SDL_RenderPresent(ren);
 }
 
-void render_statistics(int total_moved, int total_infections, int total_exposures, SDL_Renderer *renderer, TTF_Font *font) {
+void render_statistics(int total_moved, int total_infections, int total_exposures, int iteration, SDL_Renderer *renderer, TTF_Font *font) {
     SDL_Color white = {255, 255, 255, 255};
     char buffer[128];
     int y_offset = 10;
     int x = GRID_WIDTH * CELL_SIZE + 10;
+
+    sprintf(buffer, "Iteration: %d", iteration);
+    render_text_line(renderer, font, buffer, x, y_offset, white);
+    y_offset += 25;
 
     sprintf(buffer, "Total Grid Moves: %d", total_moved);
     render_text_line(renderer, font, buffer, x, y_offset, white);
