@@ -18,5 +18,6 @@ void update_cell(Grid *grid, int x, int y, int new_value);
 void print_grid(const Grid *grid);
 void move_cell(Grid *grid, Cell *cell, int new_x, int new_y);
 void move_cell_random(Grid *grid, Cell *cell);
+int count_cells(const Grid *grid, CellState state);
 
 #endif // GRID_H

@@ -54,7 +54,7 @@ int main(void) {
         calculate_infection_probability(grid, x, y);
 
         track_cell_statistics(grid, statistics); // Collect statistics about the cells
-        render_statistics(*statistics[0], *statistics[1], *statistics[2], renderer, font);
+        render_statistics(*statistics[0], *statistics[1], *statistics[2], time_step, renderer, font);
         
         printf("Moving cell at (%d, %d) with state %d to (%d, %d)\n", x, y, cell->state, cell->x, cell->y);
         
@@ -93,6 +93,22 @@ int main(void) {
         free(statistics[i]);
     }
     free_grid(grid);
+
+    FILE *csv_file = fopen(CSV_FILE, "w");
+    if (!csv_file) {
+        fprintf(stderr, "Failed to open CSV file for writing\n");
+        return 1;
+    }
+
+    save_to_csv(csv_file, time_step, 
+        count_cells(grid, SUSCEPTIBLE), 
+        count_cells(grid, EXPOSED), 
+        count_cells(grid, INFECTIOUS), 
+        count_cells(grid, RECOVERED),
+        *statistics[0], *statistics[1], *statistics[2],
+        calculate_avg_state_count(grid, INFECTIOUS), 
+        calculate_avg_state_count(grid, EXPOSED),
+        calculate_avg_move_count(grid));
     return 0;
 }
 
@@ -118,4 +134,75 @@ void track_cell_statistics(const Grid *grid, int *statistics[]) {
                    j, i, cell->state, cell->move_count, cell->infection_count, cell->exposure_count);
         }
     }
+}
+
+double calculate_avg_move_count(const Grid *grid) {
+    if (!grid) {
+        fprintf(stderr, "Grid is NULL\n");
+        return 0.0;
+    }
+
+    int total_moves = 0;
+    int total_cells = 0;
+
+    for (int i = 0; i < grid->height; i++) {
+        for (int j = 0; j < grid->width; j++) {
+            const Cell *cell = &grid->cells[i][j];
+            if (cell) {
+                total_moves += cell->move_count;
+                total_cells++;
+            }
+        }
+    }
+
+    return calculate_avg(total_moves, total_cells);
+}
+
+double calculate_avg_state_count(const Grid *grid, int state) {
+    if (!grid) {
+        fprintf(stderr, "Grid is NULL\n");
+        return 0.0;
+    }
+
+    int total_count = 0;
+    int total_cells = 0;
+
+    for (int i = 0; i < grid->height; i++) {
+        for (int j = 0; j < grid->width; j++) {
+            const Cell *cell = &grid->cells[i][j];
+            if (cell->state == state) {
+                switch (cell->state) {
+                    case SUSCEPTIBLE:
+                        total_count += cell->infection_count;
+                        break;
+                    case EXPOSED:
+                        total_count += cell->exposure_count;
+                        break;
+                    case INFECTIOUS:
+                        total_count += cell->move_count;
+                        break;
+                    case RECOVERED:
+                        // Recovered cells do not contribute to infection or exposure counts
+                        break;
+                }
+                total_cells++;
+            }
+        }
+    }
+
+    return calculate_avg(total_count, total_cells);
+}
+
+double calculate_avg(int total, int count) {
+    return (count > 0) ? (double)total / count : 0.0;
+}
+
+void save_to_csv(FILE *csv_file, int timestep, int S, int E, int I, int R,
+                  int total_moves, int total_exposures, int total_infections,
+                  double avg_infection_count, double avg_exposed_count, double avg_move_count) {
+    fprintf(csv_file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f\n",
+        timestep, S, E, I, R,
+        total_moves, total_exposures, total_infections,
+        avg_infection_count, avg_exposed_count, avg_move_count);
+    fflush(csv_file);
 }

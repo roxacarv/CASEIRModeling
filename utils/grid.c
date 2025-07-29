@@ -101,3 +101,19 @@ void move_cell_random(Grid *grid, Cell *cell)
 
     move_cell(grid, cell, new_x, new_y);
 }
+
+int count_cells(const Grid *grid, CellState state) {
+    if (!grid) {
+        fprintf(stderr, "Grid is NULL\n");
+        return 0;
+    }
+    int count = 0;
+    for (int i = 0; i < grid->height; i++) {
+        for (int j = 0; j < grid->width; j++) {
+            if (grid->cells[i][j].state == state) {
+                count++;
+            }
+        }
+    }
+    return count;
+}

@@ -20,6 +20,10 @@ typedef struct Cell {
     int move_count;     // To track the number of moves made by the cell
     int infection_count; // To track the number of infections caused by the cell
     int exposure_count;  // To track the number of exposures caused by the cell
+    int new_exposure_count; // To track the number of new exposures caused by the cell at its peak
+    int new_infection_count; // To track the number of new infections caused by the cell at its peak
+    int cur_exposure_count; // To track the current exposure count of the cell
+    int cur_infection_count; // To track the current infection count of the cell
     CellState start_state; // Initial state of the cell, does not change, used for computing additional statistics
     CellState state;
     struct Cell *next;

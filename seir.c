@@ -27,6 +27,8 @@ void create_seir_model(Grid *grid)
         grid->cells[y][x].move_count = 0;           // Initialize move count
         grid->cells[y][x].infection_count = 0;      // Initialize infection count
         grid->cells[y][x].exposure_count = 0;       // Initialize exposure count
+        grid->cells[y][x].new_exposure_count = 0;   // Initialize new exposure count
+        grid->cells[y][x].new_infection_count = 0;  // Initialize new infection count
     }
 
     for (int i = 0; i < exposed_cells; i++)
@@ -37,6 +39,8 @@ void create_seir_model(Grid *grid)
         grid->cells[y][x].move_count = 0;      // Initialize move count
         grid->cells[y][x].infection_count = 0; // Initialize infection count
         grid->cells[y][x].exposure_count = 0;  // Initialize exposure count
+        grid->cells[y][x].new_exposure_count = 0; // Initialize new exposure count
+        grid->cells[y][x].new_infection_count = 0; // Initialize new
     }
 
     printf("SEIR model initialized on the grid.\n");
@@ -170,7 +174,17 @@ void can_be_exposed(Cell *cell, CellList *cell_list, double *probability, int in
         for (int i = 0; i < cell_list->size; i++)
         {
             cell_list->data[i]->exposure_count++;
+            cell_list->data[i]->new_exposure_count++;
         }
+
+        for (int i = 0; i < cell_list->size; i++)
+        {
+            if (cell_list->data[i]->new_exposure_count > cell_list->data[i]->cur_exposure_count)
+            {
+                cell_list->data[i]->cur_exposure_count = cell_list->data[i]->new_exposure_count;
+            }
+        }
+
         expose_cell(cell);
         printf("Cell at (%d, %d) has been exposed with a probability of %.2f.\n", cell->x, cell->y, *probability);
     }
