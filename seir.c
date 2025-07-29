@@ -15,7 +15,7 @@ void create_seir_model(Grid *grid)
     // For simplicity, all cells are initialized to susceptible state
     // Randomly sort the number of cells to be infected or exposed
     int infectious_cells = grid->width * grid->height / 5; // 20% of cells infected
-    int exposed_cells = grid->width * grid->height / 10;    // 10% of cells exposed
+    int exposed_cells = grid->width * grid->height / 10;   // 10% of cells exposed
 
     // Randomly select cells to be infected or exposed
     for (int i = 0; i < infectious_cells; i++)
@@ -23,6 +23,10 @@ void create_seir_model(Grid *grid)
         int x = rand() % grid->width;
         int y = rand() % grid->height;
         grid->cells[y][x].state = INFECTIOUS;
+        grid->cells[y][x].start_state = INFECTIOUS; // Store the initial state for statistics
+        grid->cells[y][x].move_count = 0;           // Initialize move count
+        grid->cells[y][x].infection_count = 0;      // Initialize infection count
+        grid->cells[y][x].exposure_count = 0;       // Initialize exposure count
     }
 
     for (int i = 0; i < exposed_cells; i++)
@@ -30,12 +34,14 @@ void create_seir_model(Grid *grid)
         int x = rand() % grid->width;
         int y = rand() % grid->height;
         grid->cells[y][x].state = EXPOSED;
+        grid->cells[y][x].move_count = 0;      // Initialize move count
+        grid->cells[y][x].infection_count = 0; // Initialize infection count
+        grid->cells[y][x].exposure_count = 0;  // Initialize exposure count
     }
 
     printf("SEIR model initialized on the grid.\n");
-    printf("Grid dimensions: %d x %d\n", grid->width, grid->height);
     printf("Infectious cells: %d, Exposed cells: %d\n", infectious_cells, exposed_cells);
-    print_grid(grid);
+    printf("Grid dimensions: %d x %d\n", grid->width, grid->height);
 }
 
 /**
@@ -92,14 +98,14 @@ void calculate_infection_probability(Grid *grid, int x, int y)
         int new_x = x + dx[i];
         int new_y = y + dy[i];
 
-            if (new_x >= 0 && new_x < width && new_y >= 0 && new_y < height) // This will check if the new position is within the grid bounds before proceeding to check the cell state
+        if (new_x >= 0 && new_x < width && new_y >= 0 && new_y < height) // This will check if the new position is within the grid bounds before proceeding to check the cell state
+        {
+            if (check_cell_state(&grid->cells[new_y][new_x], INFECTIOUS))
             {
-                if (check_cell_state(&grid->cells[new_y][new_x], INFECTIOUS))
-                {
-                    append_cell(&cell_list, &grid->cells[new_y][new_x]);
-                    infectious_neighbors++;
-                }
+                append_cell(&cell_list, &grid->cells[new_y][new_x]);
+                infectious_neighbors++;
             }
+        }
     }
 
     printf("Number of infectious neighbors for cell at (%d, %d): %d\n", x, y, infectious_neighbors);

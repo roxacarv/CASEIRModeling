@@ -83,6 +83,7 @@ void move_cell(Grid *grid, Cell *cell, int new_x, int new_y)
 
     cell->x = new_x;
     cell->y = new_y;
+    cell->move_count++; // Increment the move count for the cell
     grid->cells[new_y][new_x] = *cell; // Update the grid with the new cell position
 }
 

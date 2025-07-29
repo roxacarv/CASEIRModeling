@@ -17,4 +17,6 @@
 #define MAX_ITERATIONS 150
 #define CELL_SIZE 20
 
+void track_cell_statistics(const Grid *grid, int *statistics[]);
+
 #endif // MAIN_H

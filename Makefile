@@ -9,5 +9,5 @@ SRCS = utils/cell.c utils/grid.c graphics/sdl2.c utils/dim.c utils/line.c seir.c
 
 # Build command
 compile:
-	$(CC) $(SRCS) -o $(TARGET) -lm -lSDL2
+	$(CC) $(SRCS) -o $(TARGET) -lm `sdl2-config --cflags --libs` -lSDL2_ttf
 
