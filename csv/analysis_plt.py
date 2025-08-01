@@ -1,9 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from numpy import trapezoid
-from scipy.integrate import simps
-
-
+from scipy.integrate import simpson
 
 iterations_df = pd.read_csv("iterations_statistics.csv")
 final_df = pd.read_csv("statistics.csv")
@@ -19,7 +17,7 @@ duration = last_infection - first_infection
 print(f"Epidemic duration: {duration} iterations (from {first_infection} to {last_infection})")
 
 # AUC (Area under the curve), get the cumulative impact of each SEIR group
-auc_infectious = simps(iterations_df["infectious"], iterations_df["iteration"])
+auc_infectious = simpson(iterations_df["infectious"], iterations_df["iteration"])
 print(f"AUC of Infectious curve: {auc_infectious:.2f}")
 
 # Rate of change
@@ -38,7 +36,6 @@ plt.xlabel("Iteration")
 plt.ylabel("Population")
 plt.legend()
 plt.grid(True)
-plt.savefig("seir_dynamics.png", dpi=300)
 
 # 2. Total counts over time
 plt.subplot(2, 2, 2)
@@ -50,7 +47,6 @@ plt.xlabel("Iteration")
 plt.ylabel("Total Count")
 plt.legend()
 plt.grid(True)
-plt.savefig("total_counts_over_time.png", dpi=300)
 
 # 3. Average per-cell statistics
 plt.subplot(2, 2, 3)
@@ -62,7 +58,6 @@ plt.xlabel("Iteration")
 plt.ylabel("Average")
 plt.legend()
 plt.grid(True)
-plt.savefig("avg_per_cell_stat.png", dpi=300)
 
 # 4. Average movement
 plt.subplot(2, 2, 4)
@@ -72,11 +67,10 @@ plt.xlabel("Iteration")
 plt.ylabel("Average Moves")
 plt.legend()
 plt.grid(True)
-plt.savefig("avg_mov.png", dpi=300)
+plt.savefig("avg_iteration_analysis.png", dpi=300)
 
 plt.tight_layout()
 plt.show()
-plt.savefig("seir_evolution.png", dpi=300)
 
 final = final_df.iloc[0]
 seir_final = final[["susceptible", "exposed", "infectious", "recovered"]]
@@ -87,5 +81,5 @@ plt.title("Final SEIR State")
 plt.ylabel("Population")
 plt.grid(axis='y')
 plt.tight_layout()
-plt.show()
 plt.savefig("final_state.png", dpi=300)
+plt.show()
