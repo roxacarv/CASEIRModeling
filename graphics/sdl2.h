@@ -8,8 +8,8 @@
 #include "../utils/grid.h"
 #include "../utils/cell.h"
 
-#define GRID_WIDTH 32
-#define GRID_HEIGHT 32
+#define GRID_WIDTH 64
+#define GRID_HEIGHT 64
 #define CELL_SIZE 20
 #define FONT_PATH "graphics/fonts/arial.ttf"
 #define FONT_SIZE 16

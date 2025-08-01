@@ -5,8 +5,8 @@ int main(void)
     signal(SIGINT, sigint_handler);                       // Handle Ctrl+C to clean up resources
     srand((unsigned int)(time(NULL) ^ (uintptr_t)&main)); // Seed the random number generator with a unique value
 
-    int moves = 0, infections = 0, exposures = 0;
-    int *statistics[3] = {&moves, &infections, &exposures}; // Array to hold pointers for total moved, total infections, and total exposures
+    int moves = 0, exposures = 0, infections = 0;
+    int *statistics[3] = {&moves, &exposures, &infections}; // Array to hold pointers for total moved, total infections, and total exposures
 
     Grid *grid = new_grid(GRID_WIDTH, GRID_HEIGHT);
     if (!grid)
@@ -32,7 +32,25 @@ int main(void)
         fprintf(stderr, "Failed to load font\n");
         return 1;
     }
-    // printf("Starting the simulation...\n");
+
+    char *columns[] = {
+        "iteration",
+        "susceptible",
+        "exposed",
+        "infectious",
+        "recovered",
+        "total_moves",
+        "total_exposures",
+        "total_infectious",
+        "avg_susceptible_count",
+        "avg_infection_count",
+        "avg_exposed_count",
+        "avg_move_count",
+        "dim"};
+
+    create_csv(IT_CSV_FILE, columns); // Create a CSV file for logging iterations while the simulation is happening
+
+    printf("Starting the simulation...\n");
     // Simulate the SEIR model for a number of time steps
     while (time_step <= MAX_ITERATIONS)
     {
@@ -55,6 +73,21 @@ int main(void)
 
         move_cell_random(grid, cell);
         calculate_infection_probability(grid, x, y);
+
+        if ((time_step % 5) == 0) { // Should probably be better optimized, maybe later?
+            printf("Saved current iteration to csv...");
+            double dim = estimate_similarity_dimension(grid, INFECTIOUS);
+            save_to_csv(IT_CSV_FILE, time_step,
+                count_cells(grid, SUSCEPTIBLE),
+                count_cells(grid, EXPOSED),
+                count_cells(grid, INFECTIOUS),
+                count_cells(grid, RECOVERED),
+                *statistics[0], *statistics[1], *statistics[2],
+                calculate_avg_state_count(grid, SUSCEPTIBLE),
+                calculate_avg_state_count(grid, INFECTIOUS),
+                calculate_avg_state_count(grid, EXPOSED),
+                calculate_avg_move_count(grid), dim);
+        }
 
         track_cell_statistics(grid, statistics); // Collect statistics about the cells
         render_statistics(*statistics[0], *statistics[1], *statistics[2], time_step, renderer, font);
@@ -92,31 +125,25 @@ int main(void)
     printf("Total Moves: %d, Total Infections: %d, Total Exposures: %d\n",
            *statistics[0], *statistics[1], *statistics[2]);
 
-    FILE *csv_file = fopen(CSV_FILE, "w");
-    if (!csv_file)
-    {
-        fprintf(stderr, "Failed to open CSV file for writing\n");
-        return 1;
-    }
-
-    save_to_csv(csv_file, time_step,
+    create_csv(CSV_FILE, columns);
+    save_to_csv(CSV_FILE, time_step,
                 count_cells(grid, SUSCEPTIBLE),
                 count_cells(grid, EXPOSED),
                 count_cells(grid, INFECTIOUS),
                 count_cells(grid, RECOVERED),
                 *statistics[0], *statistics[1], *statistics[2],
+                calculate_avg_state_count(grid, SUSCEPTIBLE),
                 calculate_avg_state_count(grid, INFECTIOUS),
                 calculate_avg_state_count(grid, EXPOSED),
                 calculate_avg_move_count(grid), dim);
-    return 0;
     // Clean up SDL resources
     if (renderer)
     {
         SDL_DestroyRenderer(renderer);
     }
     SDL_Quit();
-
     free_grid(grid);
+    return 0;
 }
 
 void track_cell_statistics(const Grid *grid, int *statistics[])
@@ -205,7 +232,7 @@ double calculate_avg_state_count(const Grid *grid, int state)
                     total_count += cell->move_count;
                     break;
                 case RECOVERED:
-                    // Recovered cells do not contribute to infection or exposure counts
+                    // In a SEIR model recovered cells do not contribute to infection or exposure counts
                     break;
                 }
                 total_cells++;
@@ -221,14 +248,41 @@ double calculate_avg(int total, int count)
     return (count > 0) ? (double)total / count : 0.0;
 }
 
-void save_to_csv(FILE *csv_file, int timestep, int S, int E, int I, int R,
+void save_to_csv(char *file_path, int timestep, int S, int E, int I, int R,
                  int total_moves, int total_exposures, int total_infections,
-                 double avg_infection_count, double avg_exposed_count, double avg_move_count, double dim)
+                 double avg_susceptible_count, double avg_infection_count, double avg_exposed_count, double avg_move_count, double dim)
 {
-    fprintf(csv_file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%.2f\n",
+    FILE *csv_file = fopen(file_path, "a");
+    if (!csv_file)
+    {
+        fprintf(stderr, "Failed to open CSV file for writing\n");
+    }
+    fprintf(csv_file,
+            "%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%.2f\n",
             timestep, S, E, I, R,
-            total_moves, total_exposures, total_infections,
-            avg_infection_count, avg_exposed_count, avg_move_count, dim);
+            total_moves,
+            total_exposures,
+            total_infections,
+            avg_susceptible_count,
+            avg_infection_count,
+            avg_exposed_count,
+            avg_move_count, dim);
     fclose(csv_file);
-    printf("Statistics saved to %s\n", CSV_FILE);
+    printf("Statistics saved to %s\n", file_path);
+}
+
+void create_csv(char *file_path, char *columns[])
+{
+    char *columns_words = join_strings(columns);
+    FILE *csv_file = fopen(file_path, "w");
+    if (!csv_file)
+    {
+        fprintf(stderr, "Failed to open CSV file for writing\n");
+        return;
+    }
+    fprintf(csv_file,
+            "%s\n", columns_words);
+    fclose(csv_file);
+    free(columns_words);
+    printf("Statistics saved to %s\n", file_path);
 }
