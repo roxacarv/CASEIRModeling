@@ -6,3 +6,8 @@
 *~
 *.swp
 *.swo
+
+# Python virtual environment
+venv/
+.env/
+.venv/
