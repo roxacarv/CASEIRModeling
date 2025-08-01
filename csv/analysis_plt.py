@@ -1,6 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from numpy import trapzoid
+from numpy import trapezoid
+from scipy.integrate import simps
+
+
 
 iterations_df = pd.read_csv("iterations_statistics.csv")
 final_df = pd.read_csv("statistics.csv")
@@ -16,7 +19,7 @@ duration = last_infection - first_infection
 print(f"Epidemic duration: {duration} iterations (from {first_infection} to {last_infection})")
 
 # AUC (Area under the curve), get the cumulative impact of each SEIR group
-auc_infectious = trapz(iterations_df["infectious"], iterations_df["iteration"])
+auc_infectious = simps(iterations_df["infectious"], iterations_df["iteration"])
 print(f"AUC of Infectious curve: {auc_infectious:.2f}")
 
 # Rate of change
