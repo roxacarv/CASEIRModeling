@@ -1,8 +1,26 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from numpy import trapzoid
 
 iterations_df = pd.read_csv("iterations_statistics.csv")
 final_df = pd.read_csv("statistics.csv")
+
+# Peak detection
+peak = iterations_df.loc[iterations_df["infectious"].idxmax()]
+print(f"Peak infectious at iteration {peak['iteration']}: {int(peak['infectious'])} individuals")
+
+# Epidemic duration
+first_infection = iterations_df[iterations_df['infectious'] > 0]['iteration'].min()
+last_infection = iterations_df[iterations_df['infectious'] > 0]['iteration'].max()
+duration = last_infection - first_infection
+print(f"Epidemic duration: {duration} iterations (from {first_infection} to {last_infection})")
+
+# AUC (Area under the curve), get the cumulative impact of each SEIR group
+auc_infectious = trapz(iterations_df["infectious"], iterations_df["iteration"])
+print(f"AUC of Infectious curve: {auc_infectious:.2f}")
+
+# Rate of change
+iterations_df["infectious_growth_rate"] = iterations_df["infectious"].diff() / iterations_df["infectious"].shift()
 
 plt.figure(figsize=(14, 10))
 
