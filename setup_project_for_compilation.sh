@@ -30,7 +30,8 @@ do_main_setup() {
     echo "To activate it manually, run: . ${PYTHON_DIR}/bin/activate from $(dirname "${PYTHON_DIR}")"
     
     # Activate and install requirements in this subshell
-    source "${PYTHON_DIR}/bin/activate"
+    cd "csv"
+    source "venv/bin/activate"
     echo "Installing necessary requirements to run analysis"
     cat requirements.txt
     pip install -r requirements.txt
