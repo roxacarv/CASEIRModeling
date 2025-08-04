@@ -123,14 +123,6 @@ void decrease_recovery_time(Cell *cell, int recovery_rate)
     {
         cell->recovery_time = (cell->recovery_time > recovery_rate) ? cell->recovery_time - recovery_rate : 0;
     }
-    else if (cell)
-    {
-        fprintf(stderr, "Cell is recovery time is already zero\n");
-    }
-    else
-    {
-        fprintf(stderr, "Cell is NULL\n");
-    }
 }
 
 // If the cell is exposed, return if the latency period is greater than 0: the cell is still in the latency period and should not become infectious
