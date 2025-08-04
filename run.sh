@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PYTHON_DIR="csv/venv"
+
 # First run the simulation and wait for an exit code
 obj/program > /dev/null
 exit_status=$?
