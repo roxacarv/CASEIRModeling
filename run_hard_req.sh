@@ -25,8 +25,7 @@ install_packages() {
 do_main_setup() {
     install_packages
     # First run the simulation and wait for an exit code
-    # obj/program > /dev/null
-    obj/program
+    obj/program >> /dev/null
     exit_status=$?
     if [ ${exit_status} -eq 0 ]; then
         echo "Simulation has finished successfully. Calling Python to generate plot analyzes"
