@@ -67,6 +67,7 @@ void print_grid(const Grid *grid) {
 }
 
 // Moves a cell through the grid, to simulate its movement as if it were a person
+// Instead of only moving, add a swap to avoid letting old cells hanging
 void move_cell(Grid *grid, Cell *cell, int new_x, int new_y)
 {
     if (!grid || !cell)
@@ -81,10 +82,29 @@ void move_cell(Grid *grid, Cell *cell, int new_x, int new_y)
         return;
     }
 
-    cell->x = new_x;
-    cell->y = new_y;
-    cell->move_count++; // Increment the move count for the cell
-    grid->cells[new_y][new_x] = *cell; // Update the grid with the new cell position
+    int old_x = cell->x;
+    int old_y = cell->y;
+
+    if (old_x == new_x && old_y == new_y) {
+        return;
+    }
+
+    // Pointer to the target cell to swap with
+    Cell *target_cell = &grid->cells[new_y][new_x];
+
+    // Swap the cells in the grid array
+    Cell temp = *cell;
+    *cell = *target_cell;
+    *target_cell = temp;
+
+    cell->x = old_x;
+    cell->y = old_y;
+
+    target_cell->x = new_x;
+    target_cell->y = new_y;
+
+    // Increment move count for the moved cell (which is now at target position)
+    target_cell->move_count++;
 }
 
 // Moves a cell through the grid, to simulate its movement as if it were a person
