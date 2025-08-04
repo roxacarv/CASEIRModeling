@@ -30,6 +30,10 @@ int main(void)
     if (!font)
     {
         fprintf(stderr, "Failed to load font\n");
+        if (renderer)
+            SDL_DestroyRenderer(renderer);
+        if (grid)
+            free_grid(grid);
         return 1;
     }
 
@@ -247,7 +251,8 @@ double calculate_avg_state_count(const Grid *grid, int state)
     {
         printf("exposure count: %d\n", total_count);
     }
-    if (state == INFECTIOUS) {
+    if (state == INFECTIOUS)
+    {
         printf("infectious count: %d\n", total_count);
     }
     return calculate_avg(total_count, total_cells);
@@ -285,6 +290,12 @@ void create_csv(char *file_path, char *columns[])
 {
     char *columns_words = join_strings(columns);
     FILE *csv_file = fopen(file_path, "w");
+    if (!columns_words)
+    {
+        fprintf(stderr, "join_strings failed\n");
+        fclose(csv_file);
+        return;
+    }
     if (!csv_file)
     {
         fprintf(stderr, "Failed to open CSV file for writing\n");

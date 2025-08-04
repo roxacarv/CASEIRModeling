@@ -61,6 +61,8 @@ void render_grid(SDL_Renderer *ren, const Grid *grid)
 }
 
 void render_statistics(int total_moved, int total_infections, int total_exposures, int iteration, SDL_Renderer *renderer, TTF_Font *font) {
+    if (!renderer || !font) return;
+    
     SDL_Color white = {255, 255, 255, 255};
     char buffer[128];
     int y_offset = 10;
