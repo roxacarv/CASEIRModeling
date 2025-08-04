@@ -21,7 +21,7 @@ check_python_libraries() {
 if [ ${exit_status} -eq 0 ]; then
     echo "Simulation has finished successfully. Calling Python to generate plot analyzes"
     cd "csv"
-    if ! -d "venv"; then
+    if [ ! -d "venv" ]; then
         python3 -m venv "${PYTHON_DIR}"
         echo "Python venv was created at ${PYTHON_DIR}"
     fi
