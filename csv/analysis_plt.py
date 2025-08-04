@@ -2,6 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from numpy import trapezoid
 from scipy.integrate import simpson
+import seaborn as sns
+
+RESULTS_PATH="results.txt"
 
 iterations_df = pd.read_csv("iterations_statistics.csv")
 final_df = pd.read_csv("statistics.csv")
@@ -32,6 +35,30 @@ plt.tight_layout()
 plt.savefig("seir_evolution.png", dpi=300)
 plt.show()
 
+# Compute correlation matrix
+corr = iterations_df.corr(numeric_only=True)
+
+# Plot heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f")
+plt.title("Correlation Heatmap of SEIR Metrics")
+plt.tight_layout()
+plt.savefig("seir_correlation_heatmap.png", dpi=300)
+plt.show()
+
+# Normalize and select values
+heatmap_data = iterations_df[["susceptible", "exposed", "infectious", "recovered"]].T
+
+# Plot heatmap (transpose makes metrics on Y-axis, time on X-axis)
+plt.figure(figsize=(12, 4))
+sns.heatmap(heatmap_data, cmap="viridis", cbar_kws={'label': 'Population'})
+plt.title("SEIR Dynamics Heatmap Over Iterations")
+plt.xlabel("Iteration Index")
+plt.ylabel("State")
+plt.tight_layout()
+plt.savefig("seir_time_heatmap.png", dpi=300)
+plt.show()
+
 # Epidemic duration
 first_infection = iterations_df[iterations_df['infectious'] > 0]['iteration'].min()
 last_infection = iterations_df[iterations_df['infectious'] > 0]['iteration'].max()
@@ -49,10 +76,15 @@ avg_infectious = early["infectious"].mean()
 approx_r0 = avg_exposures / avg_infectious if avg_infectious else 0
 
 # Print and collect results
-print(f"📌 Peak Infection: {int(peak['infectious'])} at iteration {int(peak['iteration'])}")
-print(f"⏱️ Epidemic Duration: {duration} iterations")
-print(f"📐 Area Under Infectious Curve: {auc_infectious:.2f}")
-print(f"🧪 Approximate R₀: {approx_r0:.2f}")
+peak_infection = f"Peak Infection: {int(peak['infectious'])} at iteration {int(peak['iteration'])}"
+epidemic_dur = f"Epidemic Duration: {duration} iterations"
+auc_res = f"Area Under Infectious Curve: {auc_infectious:.2f}"
+r0 = f"Approximate R₀: {approx_r0:.2f}"
+all_metrics = f"{peak_infection}\n{epidemic_dur}\n{auc_res}\n{r0}"
+
+print(all_metrics)
+with open(RESULTS_PATH, "w") as fb:
+    fb.write(all_metrics)
 
 # Bar chart for final SEIR states
 seir_final = final[["susceptible", "exposed", "infectious", "recovered"]]

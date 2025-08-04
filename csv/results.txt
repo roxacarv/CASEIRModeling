@@ -1,0 +1,4 @@
+Peak Infection: 175 at iteration 2365
+Epidemic Duration: 10000 iterations
+Area Under Infectious Curve: 1515431.67
+Approximate R₀: 0.22
