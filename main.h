@@ -14,7 +14,7 @@
 #include "graphics/sdl2.h"
 #include "seir.h"
 
-#define MAX_ITERATIONS 10000 // 10.000 iterations
+#define MAX_ITERATIONS 500 // 10.000 iterations
 #define CELL_SIZE 20
 #define CSV_FILE "csv/statistics.csv"
 #define IT_CSV_FILE "csv/iterations_statistics.csv"

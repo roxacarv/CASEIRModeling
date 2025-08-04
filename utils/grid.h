@@ -10,6 +10,7 @@ typedef struct Grid {
     Cell **cells;
     int width;
     int height;
+    int susceptible_count;
 } Grid;
 
 Grid *new_grid(int width, int height);

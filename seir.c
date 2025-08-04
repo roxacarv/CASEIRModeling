@@ -109,6 +109,9 @@ void calculate_infection_probability(Grid *grid, int x, int y)
                 append_cell(&cell_list, &grid->cells[new_y][new_x]);
                 infectious_neighbors++;
             }
+            if (check_cell_state(&grid->cells[new_y][new_x], EXPOSED)) {
+                append_cell(&cell_list, &grid->cells[new_y][new_x]);
+            }
         }
     }
 
@@ -141,7 +144,9 @@ void calculate_infection_probability(Grid *grid, int x, int y)
         // If the cell is recovered, it remains in the recovered state
         *probability = 0.0;
     }
-
+    
+    grid->susceptible_count += count_cells(grid, SUSCEPTIBLE);
+    
     free_cell_list(&cell_list);
     free(probability);
     printf("Infection probability for cell at (%d, %d): %.2f\n", x, y, *probability);

@@ -93,6 +93,9 @@ void render_text_line(SDL_Renderer *renderer, TTF_Font *font, const char *text, 
     }
 
     SDL_Rect dest = { x, y, surface->w, surface->h };
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &dest);
+
     SDL_RenderCopy(renderer, texture, NULL, &dest);
 
     SDL_FreeSurface(surface);

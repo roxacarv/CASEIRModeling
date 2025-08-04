@@ -43,8 +43,8 @@ int main(void)
         "total_exposures",
         "total_infectious",
         "avg_susceptible_count",
-        "avg_infection_count",
         "avg_exposed_count",
+        "avg_infection_count",
         "avg_move_count",
         "dim"};
 
@@ -59,8 +59,7 @@ int main(void)
             fprintf(stderr, "Grid is NULL\n");
             break;
         }
-        printf("iteration: %d", time_step);
-        clear_term(); // Clear the terminal for better visualization
+        // clear_term(); // Clear the terminal for better visualization
         printf("Iteration: %d\n", time_step);
         // Randomly select a cell to move
         int x = rand() % grid->width;
@@ -74,19 +73,20 @@ int main(void)
         move_cell_random(grid, cell);
         calculate_infection_probability(grid, x, y);
 
-        if ((time_step % 5) == 0) { // Should probably be better optimized, maybe later?
-            printf("Saved current iteration to csv...");
+        if ((time_step % 5) == 0)
+        { // Should probably be better optimized, maybe later?
             double dim = estimate_similarity_dimension(grid, INFECTIOUS);
             save_to_csv(IT_CSV_FILE, time_step,
-                count_cells(grid, SUSCEPTIBLE),
-                count_cells(grid, EXPOSED),
-                count_cells(grid, INFECTIOUS),
-                count_cells(grid, RECOVERED),
-                *statistics[0], *statistics[1], *statistics[2],
-                calculate_avg_state_count(grid, SUSCEPTIBLE),
-                calculate_avg_state_count(grid, INFECTIOUS),
-                calculate_avg_state_count(grid, EXPOSED),
-                calculate_avg_move_count(grid), dim);
+                        count_cells(grid, SUSCEPTIBLE),
+                        count_cells(grid, EXPOSED),
+                        count_cells(grid, INFECTIOUS),
+                        count_cells(grid, RECOVERED),
+                        *statistics[0], *statistics[1], *statistics[2],
+                        calculate_avg_state_count(grid, SUSCEPTIBLE),
+                        calculate_avg_state_count(grid, INFECTIOUS),
+                        calculate_avg_state_count(grid, EXPOSED),
+                        calculate_avg_move_count(grid), dim);
+            printf("Saved current iteration to csv...\n");
         }
 
         track_cell_statistics(grid, statistics); // Collect statistics about the cells
@@ -99,7 +99,7 @@ int main(void)
         time_step++;
     }
     double dim = estimate_similarity_dimension(grid, INFECTIOUS);
-    printf("Which cells caused infections:\n");
+    // printf("Which cells caused infections:\n");
     for (int i = 0; i < grid->height; i++)
     {
         for (int j = 0; j < grid->width; j++)
@@ -110,7 +110,7 @@ int main(void)
             }
         }
     }
-    printf("Which cells caused exposures:\n");
+    // printf("Which cells caused exposures:\n");
     for (int i = 0; i < grid->height; i++)
     {
         for (int j = 0; j < grid->width; j++)
@@ -121,9 +121,9 @@ int main(void)
             }
         }
     }
-    printf("Estimated Similarity Dimension of infection: %.3f\n", dim);
-    printf("Total Moves: %d, Total Infections: %d, Total Exposures: %d\n",
-           *statistics[0], *statistics[1], *statistics[2]);
+    // printf("Estimated Similarity Dimension of infection: %.3f\n", dim);
+    // printf("Total Moves: %d, Total Infections: %d, Total Exposures: %d\n",
+    //*statistics[0], *statistics[1], *statistics[2]);
 
     create_csv(CSV_FILE, columns);
     save_to_csv(CSV_FILE, time_step,
@@ -213,33 +213,43 @@ double calculate_avg_state_count(const Grid *grid, int state)
     int total_count = 0;
     int total_cells = 0;
 
-    for (int i = 0; i < grid->height; i++)
+    if (state == SUSCEPTIBLE)
     {
-        for (int j = 0; j < grid->width; j++)
+        total_count = grid->susceptible_count;
+    }
+    else
+    {
+        for (int i = 0; i < grid->height; i++)
         {
-            const Cell *cell = &grid->cells[i][j];
-            if (cell->state == state)
+            for (int j = 0; j < grid->width; j++)
             {
-                switch (cell->state)
+                const Cell *cell = &grid->cells[i][j];
+                if (cell->state == state)
                 {
-                case SUSCEPTIBLE:
-                    total_count += cell->infection_count;
-                    break;
-                case EXPOSED:
-                    total_count += cell->exposure_count;
-                    break;
-                case INFECTIOUS:
-                    total_count += cell->move_count;
-                    break;
-                case RECOVERED:
-                    // In a SEIR model recovered cells do not contribute to infection or exposure counts
-                    break;
+                    switch (cell->state)
+                    {
+                    case EXPOSED:
+                        total_count += cell->exposure_count;
+                        break;
+                    case INFECTIOUS:
+                        total_count += cell->infection_count;
+                        break;
+                    case RECOVERED:
+                        // In a SEIR model recovered cells do not contribute to infection or exposure counts
+                        break;
+                    }
+                    total_cells++;
                 }
-                total_cells++;
             }
         }
     }
-
+    if (state == EXPOSED)
+    {
+        printf("exposure count: %d\n", total_count);
+    }
+    if (state == INFECTIOUS) {
+        printf("infectious count: %d\n", total_count);
+    }
     return calculate_avg(total_count, total_cells);
 }
 
@@ -258,17 +268,17 @@ void save_to_csv(char *file_path, int timestep, int S, int E, int I, int R,
         fprintf(stderr, "Failed to open CSV file for writing\n");
     }
     fprintf(csv_file,
-            "%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%.2f\n",
+            "%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",
             timestep, S, E, I, R,
             total_moves,
             total_exposures,
             total_infections,
             avg_susceptible_count,
-            avg_infection_count,
             avg_exposed_count,
+            avg_infection_count,
             avg_move_count, dim);
     fclose(csv_file);
-    printf("Statistics saved to %s\n", file_path);
+    // printf("Statistics saved to %s\n", file_path);
 }
 
 void create_csv(char *file_path, char *columns[])
@@ -284,5 +294,5 @@ void create_csv(char *file_path, char *columns[])
             "%s\n", columns_words);
     fclose(csv_file);
     free(columns_words);
-    printf("Statistics saved to %s\n", file_path);
+    // printf("Statistics saved to %s\n", file_path);
 }
