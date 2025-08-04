@@ -24,9 +24,17 @@ install_packages() {
 
 do_main_setup() {
     install_packages
-    echo "Creating virtual Python envinronment"
-    python3 -m venv ${PYTHON_DIR}
-    echo "Python venv was created at ${PYTHON_DIR}, to run it, call the command: . venv/bin/activate while inside $(dirname ${PYTHON)_DIR})"
+    echo "Creating virtual Python environment"
+    python3 -m venv "${PYTHON_DIR}"
+    echo "Python venv was created at ${PYTHON_DIR}"
+    echo "To activate it manually, run: . ${PYTHON_DIR}/bin/activate from $(dirname "${PYTHON_DIR}")"
+    
+    # Activate and install requirements in this subshell
+    source "${PYTHON_DIR}/bin/activate"
+    echo "Installing necessary requirements to run analysis"
+    cat requirements.txt
+    pip install -r requirements.txt
+    deactivate
 }
 
 echo "Initializing project..."
