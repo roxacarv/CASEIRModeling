@@ -19,6 +19,7 @@ Modeling infectious diseases using the SEIR model struct and a celullar automata
   - [Conway's Game of Life in C++](https://github.com/roxacarv/roxacs_code_cellar/tree/master/Algorithms/Conway's%20Game%20of%20Life/C%2B%2B) that I've implemented a few years ago. Mainly used to guide a reimplementation of a Celullar Automata in C
   - Basic [code](https://github.com/roxacarv/CASEIRModeling/blob/master/usage_examples/sdl2_usage.c) for SDL2 video initialization and rendering. Used ChatGPT to get an example
 
+#### Setup
+  - Run `install_project.sh` to install the necessary packages and create a virtual python envinroment and compile the project.
 #### Installation
-  - Run `install_project.sh` to install the necessary packages and create a virtual python envinroment.
-  - Run `run.sh` to run the simulation and gather data to generate plot maps.
+  - Run `run.sh` to run the simulation and gather data to generate plot maps. It assumes that the C binary is already compiled. It can be safely run without running setup.
