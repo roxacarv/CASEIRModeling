@@ -1,0 +1,6 @@
+Epidemic duration: 10000 iterations (from 0 to 10000)
+AUC of Infectious curve: 1423055.00
+Peak Infection: 176 at iteration 2005
+Epidemic Duration: 10000 iterations
+Area Under Infectious Curve: 1423055.00
+Approximate R₀: 0.02

@@ -1,2 +1,2 @@
 iteration,susceptible,exposed,infectious,recovered,total_moves,total_exposures,total_infectious,avg_susceptible_count,avg_exposed_count,avg_infection_count,avg_move_count,dim
-501,2776,623,671,26,247124,22990,167315,0.00,0.38,0.09,0.24,1.54
+10001,2,205,112,705,99840278,12330131,25774913,0.00,1.90,6.87,19.59,1.42
