@@ -20,3 +20,5 @@ Modeling infectious diseases using the SEIR model struct and a celullar automata
   - Basic [code](https://github.com/roxacarv/CASEIRModeling/blob/master/usage_examples/sdl2_usage.c) for SDL2 video initialization and rendering. Used ChatGPT to get an example
 
 #### Installation
+  - Run `install_project.sh` to install the necessary packages and create a virtual python envinroment.
+  - Run `run.sh` to run the simulation and gather data to generate plot maps.
