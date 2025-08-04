@@ -23,9 +23,14 @@ plt.annotate(f"Peak: {int(peak['infectious'])}\nIter: {int(peak['iteration'])}",
              textcoords="offset points", xytext=(-10,10), ha='center', fontsize=9,
              bbox=dict(boxstyle="round,pad=0.3", edgecolor='red', facecolor='white'))
 
-# Peak detection
-peak = iterations_df.loc[iterations_df["infectious"].idxmax()]
-print(f"Peak infectious at iteration {peak['iteration']}: {int(peak['infectious'])} individuals")
+plt.title("SEIR Evolution Over Time")
+plt.xlabel("Iteration")
+plt.ylabel("Population")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("seir_evolution.png", dpi=300)
+plt.show()
 
 # Epidemic duration
 first_infection = iterations_df[iterations_df['infectious'] > 0]['iteration'].min()
@@ -37,66 +42,33 @@ print(f"Epidemic duration: {duration} iterations (from {first_infection} to {las
 auc_infectious = simpson(iterations_df["infectious"], iterations_df["iteration"])
 print(f"AUC of Infectious curve: {auc_infectious:.2f}")
 
-# Rate of change
-iterations_df["infectious_growth_rate"] = iterations_df["infectious"].diff() / iterations_df["infectious"].shift()
+# Approximate R₀
+early = iterations_df.iloc[1:10]
+avg_exposures = early["total_exposures"].diff().mean()
+avg_infectious = early["infectious"].mean()
+approx_r0 = avg_exposures / avg_infectious if avg_infectious else 0
 
-plt.figure(figsize=(14, 10))
+# Print and collect results
+print(f"📌 Peak Infection: {int(peak['infectious'])} at iteration {int(peak['iteration'])}")
+print(f"⏱️ Epidemic Duration: {duration} iterations")
+print(f"📐 Area Under Infectious Curve: {auc_infectious:.2f}")
+print(f"🧪 Approximate R₀: {approx_r0:.2f}")
 
-# 1. SEIR dynamics over time
-plt.subplot(2, 2, 1)
-plt.plot(iterations_df["iteration"], iterations_df["susceptible"], label="Susceptible")
-plt.plot(iterations_df["iteration"], iterations_df["exposed"], label="Exposed")
-plt.plot(iterations_df["iteration"], iterations_df["infectious"], label="Infectious")
-plt.plot(iterations_df["iteration"], iterations_df["recovered"], label="Recovered")
-plt.title("SEIR Population Over Iterations")
-plt.xlabel("Iteration")
-plt.ylabel("Population")
-plt.legend()
-plt.grid(True)
-
-# 2. Total counts over time
-plt.subplot(2, 2, 2)
-plt.plot(iterations_df["iteration"], iterations_df["total_moves"], label="Total Moves")
-plt.plot(iterations_df["iteration"], iterations_df["total_exposures"], label="Total Exposures")
-plt.plot(iterations_df["iteration"], iterations_df["total_infectious"], label="Total Infectious")
-plt.title("Total Counts Over Iterations")
-plt.xlabel("Iteration")
-plt.ylabel("Total Count")
-plt.legend()
-plt.grid(True)
-
-# 3. Average per-cell statistics
-plt.subplot(2, 2, 3)
-plt.plot(iterations_df["iteration"], iterations_df["avg_susceptible_count"], label="Avg Susceptible Count")
-plt.plot(iterations_df["iteration"], iterations_df["avg_infection_count"], label="Avg Infection Count")
-plt.plot(iterations_df["iteration"], iterations_df["avg_exposed_count"], label="Avg Exposed Count")
-plt.title("Average Counts Per Cell")
-plt.xlabel("Iteration")
-plt.ylabel("Average")
-plt.legend()
-plt.grid(True)
-
-# 4. Average movement
-plt.subplot(2, 2, 4)
-plt.plot(iterations_df["iteration"], iterations_df["avg_move_count"], label="Avg Move Count", color="orange")
-plt.title("Average Move Count Per Cell")
-plt.xlabel("Iteration")
-plt.ylabel("Average Moves")
-plt.legend()
-plt.grid(True)
-plt.savefig("avg_iteration_analysis.png", dpi=300)
-
-plt.tight_layout()
-plt.show()
-
-final = final_df.iloc[0]
+# Bar chart for final SEIR states
 seir_final = final[["susceptible", "exposed", "infectious", "recovered"]]
+total = seir_final.sum()
+ratios = seir_final / total
 
 plt.figure(figsize=(6, 5))
-seir_final.plot(kind="bar", color=["blue", "orange", "red", "green"])
-plt.title("Final SEIR State")
+bars = plt.bar(seir_final.index, seir_final.values, color=["blue", "orange", "red", "green"])
+plt.title("Final SEIR States")
 plt.ylabel("Population")
-plt.grid(axis='y')
+
+# Annotate ratios
+for bar, value, ratio in zip(bars, seir_final.values, ratios):
+    plt.text(bar.get_x() + bar.get_width()/2, value + 10,
+             f"{ratio:.1%}", ha='center', fontsize=10)
+
 plt.tight_layout()
-plt.savefig("final_state.png", dpi=300)
+plt.savefig("final_seir_state.png", dpi=300)
 plt.show()
