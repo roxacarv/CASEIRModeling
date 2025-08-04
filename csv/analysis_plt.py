@@ -5,6 +5,23 @@ from scipy.integrate import simpson
 
 iterations_df = pd.read_csv("iterations_statistics.csv")
 final_df = pd.read_csv("statistics.csv")
+final = final_df.iloc[0]
+
+# Plot SEIR evolution
+plt.figure(figsize=(12, 6))
+plt.plot(iterations_df["iteration"], iterations_df["susceptible"], label="Susceptible")
+plt.plot(iterations_df["iteration"], iterations_df["exposed"], label="Exposed")
+plt.plot(iterations_df["iteration"], iterations_df["infectious"], label="Infectious")
+plt.plot(iterations_df["iteration"], iterations_df["recovered"], label="Recovered")
+
+
+# Find and annotate peak infection
+peak = iterations_df.loc[iterations_df['infectious'].idxmax()]
+plt.axvline(peak['iteration'], color='red', linestyle='--', alpha=0.6)
+plt.annotate(f"Peak: {int(peak['infectious'])}\nIter: {int(peak['iteration'])}",
+             (peak['iteration'], peak['infectious']),
+             textcoords="offset points", xytext=(-10,10), ha='center', fontsize=9,
+             bbox=dict(boxstyle="round,pad=0.3", edgecolor='red', facecolor='white'))
 
 # Peak detection
 peak = iterations_df.loc[iterations_df["infectious"].idxmax()]
