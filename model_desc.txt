@@ -52,21 +52,21 @@ Implementation diary:
         - SEIR creation, defining random states for each cell  (implemented)
         - Cell movement (implemented)
         - Cell state assignment (implemented)
-        - Cell state check
-        - SEIR infection probability calculation - calculate_infection_probability
-        - Check cell state and if it should change
-        - Expose and infect cells based on probability
-        - Recover cells after the recovery time reaches 0
-        - Latency period is used to calculate how much time is needed for a cell go from exposed -> infectious
-        - Constant numbers defined in seir.h (BASE_D, BETA, LATENCY_PERIOD, GAMMA)
-    - Similarity dimension
-        - Using box-counting method for similarity dimension
-        - To better analyse the spread, using linear regression: log(counts) vs log(1 / box_size) to account for multiple box-sizes
-        - Only uses valid points (non-zero)
+        - Cell state check (implemented)
+        - SEIR infection probability calculation - calculate_infection_probability (implemented)
+        - Check cell state and if it should change (implemented)
+        - Expose and infect cells based on probability (implemented)
+        - Recover cells after the recovery time reaches 0 (implemented)
+        - Latency period is used to calculate how much time is needed for a cell go from exposed -> infectious (implemented)
+        - Constant numbers defined in seir.h (BASE_D, BETA, LATENCY_PERIOD, GAMMA) (implemented)
+    - Similarity dimension (implemented)
+        - Using box-counting method for similarity dimension (implemented)
+        - To better analyse the spread, using linear regression: log(counts) vs log(1 / box_size) to account for multiple box-sizes (implemented)
+        - Only uses valid points (non-zero) (implemented)
         - Read result:
             - Start (0.0) no infections;
             - Between 1.0 to 2.0 (infections form different structures, but is not fully spread);
             - 2.0 (infection is fully spread); 
             - >2.0 is not possible as this is a 2D grid, if it happens, there is an error, probably between the monitor and the chair
-    - Graphical UI for visualization using the SDL2 library
-    - Graphical visualization of maps and quantitative numbers using Python with pandas, seaborn, matplotlib and numpy
+    - Graphical UI for visualization using the SDL2 library (implemented)
+    - Graphical visualization of maps and quantitative numbers using Python with pandas, seaborn, matplotlib and numpy (implemented)
