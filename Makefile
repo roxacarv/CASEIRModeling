@@ -36,4 +36,4 @@ gdb: build
 
 # Clean build artifacts
 clean:
-	rm -f $(TARGET
+	rm -f $(TARGET)
